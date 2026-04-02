@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FSTL COMET OS - Collateral Engine & PVID</title>
+<title>FSTL COMET OS - Collateral & PVID Verification</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
 body { font-family: Arial; background:#f5f7fb; margin:0; }
@@ -25,22 +25,22 @@ button { width:100%; padding:12px; background:#0a2a66; color:#fff; border:none; 
 .add-property { background:#04aa6d; margin-top:5px; }
 .dashboard { display:flex; flex-direction:column; gap:10px; margin-top:15px; }
 .dashboard-item { padding:10px; border-radius:6px; background:#eef1f7; }
-.trade-ready { background:#0a7a44; color:#fff; }
-.stamped { background:#ff9800; color:#fff; }
+.trade-ready { background:#0a7a44; color:#fff; margin-top:5px; }
+.stamped { background:#ff9800; color:#fff; margin-top:5px; }
 </style>
 </head>
 <body>
 
 <header>
 <h2>FSTL COMET OS</h2>
-<p>Collateral Engine + PVID + Pending Verification + Trade Dashboard</p>
+<p>Verification-Only Collateral Engine + PVID + Pending Notes + Trade Dashboard</p>
 </header>
 
 <div class="container">
 
 <!-- Agent Login -->
 <div class="card">
-<h4>Agent Login / Registration</h4>
+<h4>Agent Login</h4>
 <div class="login-section">
 <input id="agentLoginID" placeholder="Agent ID">
 <input id="agentLoginPassword" placeholder="Password" type="password">
@@ -51,7 +51,7 @@ button { width:100%; padding:12px; background:#0a2a66; color:#fff; border:none; 
 
 <!-- Owner Section -->
 <div class="card">
-<h4>1. Owner (Identity)</h4>
+<h4>1. Owner Identity</h4>
 <select id="ownerCountry" onchange="updateOwnerIDs()">
 <option value="NG">Nigeria</option>
 <option value="US">USA</option>
@@ -61,20 +61,21 @@ button { width:100%; padding:12px; background:#0a2a66; color:#fff; border:none; 
 </select>
 <div id="ownerIDFields">
   <input id="ownerName" placeholder="Full Name">
-  <input id="ownerID" placeholder="NIN">
-  <input id="ownerBank" placeholder="BVN">
+  <input id="ownerID" placeholder="NIN / SSN / SIN / Steuer-ID">
+  <input id="ownerBank" placeholder="BVN / Bank ID">
+  <input id="ownerResidential" placeholder="Residential Address">
 </div>
 </div>
 
 <!-- Property Section -->
 <div class="card">
-<h4>2. Property</h4>
+<h4>2. Property Details</h4>
 <div id="propertyList"></div>
 <button class="add-property" onclick="addProperty()">Add Property</button>
 </div>
 
 <!-- CRL Assessment -->
-<button onclick="runCRL()">Assess Collateral Strength & Generate PVID</button>
+<button onclick="runCRL()">Assess Collateral & Generate PVID</button>
 
 <div id="result" class="card result" style="display:none;"></div>
 <div id="qrcode" class="card result" style="display:none;"></div>
@@ -90,6 +91,22 @@ button { width:100%; padding:12px; background:#0a2a66; color:#fff; border:none; 
 
 <script>
 let properties = [];
+let ownerPVID = null;
+
+// Agent login simulation
+function agentLogin(){
+  const id = document.getElementById("agentLoginID").value;
+  const pw = document.getElementById("agentLoginPassword").value;
+  const msg = document.getElementById("agentLoginMsg");
+  const demoAgents = [{id:"AGENT001", pw:"pass123"}, {id:"AGENT002", pw:"demo456"}];
+  if(demoAgents.some(a=>a.id===id && a.pw===pw)){
+    msg.style.color="green";
+    msg.innerText="Login successful. Ready to verify properties.";
+  } else {
+    msg.style.color="red";
+    msg.innerText="Invalid Agent ID or Password.";
+  }
+}
 
 // Dynamic ID fields for global participants
 function updateOwnerIDs(){
@@ -97,19 +114,24 @@ function updateOwnerIDs(){
   const f = document.getElementById("ownerIDFields");
   if(c=="NG"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
     <input id="ownerID" placeholder="NIN">
-    <input id="ownerBank" placeholder="BVN">`; }
+    <input id="ownerBank" placeholder="BVN">
+    <input id="ownerResidential" placeholder="Residential Address">`; }
   else if(c=="US"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
     <input id="ownerID" placeholder="SSN">
-    <input id="ownerBank" placeholder="Routing Number">`; }
+    <input id="ownerBank" placeholder="Routing Number">
+    <input id="ownerResidential" placeholder="Residential Address">`; }
   else if(c=="UK"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
     <input id="ownerID" placeholder="NINo">
-    <input id="ownerBank" placeholder="Sort Code">`; }
+    <input id="ownerBank" placeholder="Sort Code">
+    <input id="ownerResidential" placeholder="Residential Address">`; }
   else if(c=="CA"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
     <input id="ownerID" placeholder="SIN">
-    <input id="ownerBank" placeholder="Bank Account Number">`; }
+    <input id="ownerBank" placeholder="Bank Account Number">
+    <input id="ownerResidential" placeholder="Residential Address">`; }
   else if(c=="DE"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
     <input id="ownerID" placeholder="Steuer-ID">
-    <input id="ownerBank" placeholder="IBAN">`; }
+    <input id="ownerBank" placeholder="IBAN">
+    <input id="ownerResidential" placeholder="Residential Address">`; }
 }
 
 // Add property
@@ -126,106 +148,93 @@ function addProperty(){
       <option>Commercial</option>
       <option>Land</option>
     </select>
-    <input id="propertyRef${idx}" placeholder="Survey / Registry / Doc Ref (Optional)">
-    <input id="transactionRef${idx}" placeholder="Transaction / Payment Ref (Optional)">
+    <input id="propertyID${idx}" placeholder="Property ID Number / Doc Ref">
     <button onclick="stampProperty(${idx})" class="stamped">Stamp Approval</button>
     <button onclick="toggleTrade(${idx})" class="trade-ready">Trade Ready</button>
   `;
   container.appendChild(card);
-  properties.push({idx:idx, stamped:false, tradeReady:false});
+  properties.push({idx:idx, stamped:false, tradeReady:false, pvid:generatePVID()});
 }
 
-// Generate simple PVID
+// Generate unique PVID
 function generatePVID() { return 'PVID-' + Math.random().toString(36).substr(2,9).toUpperCase(); }
-
-// Agent login simulation
-function agentLogin(){
-  const id = document.getElementById("agentLoginID").value;
-  const pw = document.getElementById("agentLoginPassword").value;
-  const msg = document.getElementById("agentLoginMsg");
-  if(id && pw){
-    msg.style.color="green";
-    msg.innerText="Login successful. Ready to verify properties.";
-  } else {
-    msg.style.color="red";
-    msg.innerText="Invalid login. Please enter Agent ID and Password.";
-  }
-}
 
 // Stamp approval
 function stampProperty(idx){
   properties[idx].stamped = true;
-  alert(`Property ${idx+1} stamped for approval.`);
+  document.getElementById("propertyCard"+idx).querySelector(".stamped").innerText="Stamped ✓";
   runCRL();
 }
 
 // Toggle trade-ready
 function toggleTrade(idx){
   properties[idx].tradeReady = !properties[idx].tradeReady;
-  alert(`Property ${idx+1} trade-ready status: ${properties[idx].tradeReady}`);
+  const btn = document.getElementById("propertyCard"+idx).querySelector(".trade-ready");
+  btn.innerText = properties[idx].tradeReady ? "Trade Ready ✓" : "Trade Ready";
   runCRL();
 }
 
-// CRL engine with Pending Verification info
+// CRL engine
 function runCRL(){
 let score = 0;
 let pending = [];
 
-// Owner Signals
+// Generate owner PVID once
+if(!ownerPVID) ownerPVID = generatePVID();
+
 const ownerName = document.getElementById("ownerName").value;
 const ownerID = document.getElementById("ownerID").value;
 const ownerBank = document.getElementById("ownerBank").value;
-let identity = (ownerName && ownerID && ownerBank) ? 25 : 10;
-if(identity<25) pending.push("Owner identity incomplete.");
-score += identity;
+const ownerRes = document.getElementById("ownerResidential").value;
+let identityScore = (ownerName && ownerID && ownerBank)?25:10;
+if(identityScore<25) pending.push("Owner identity incomplete (ID numbers required).");
+score += identityScore;
 
-// Property Signals
+// Property scoring
 let totalPropScore = 0;
 let propertyData=[];
 properties.forEach(obj=>{
   const idx = obj.idx;
   const addr = document.getElementById("propertyAddress"+idx).value;
   const type = document.getElementById("propertyType"+idx).value;
-  const ref = document.getElementById("propertyRef"+idx).value;
-  const trans = document.getElementById("transactionRef"+idx).value;
-  let pscore = (addr?25:10) + ((ref||trans)?25:5);
-  if(addr=="" || (!ref && !trans)) pending.push(`Property ${idx+1} incomplete or weak references.`);
+  const pid = document.getElementById("propertyID"+idx).value;
+  let pscore = (addr?15:5) + (pid?15:5) + (obj.stamped?20:5);
+  if(!addr || !pid) pending.push(`Property ${idx+1} missing address or ID number.`);
   if(!obj.stamped) pending.push(`Property ${idx+1} not stamped.`);
   totalPropScore += pscore;
   propertyData.push({
-    Address:addr, Type:type, Ref:ref, Transaction:trans, PVID:generatePVID(),
-    Stamped: obj.stamped, TradeReady: obj.tradeReady
+    Address: addr, Type: type, PropertyID: pid, PVID: obj.pvid, Stamped: obj.stamped, TradeReady: obj.tradeReady
   });
 });
 
-score += totalPropScore/properties.length || 0;
+score += totalPropScore / (properties.length || 1);
 
 // CRL calculation
 let crl = Math.ceil(score / 50);
 let status = crl<=2?"Weak":crl==3?"Tradable":crl==4?"Finance-Ready":"Institutional Grade";
 
-// Display results
+// Display result
 document.getElementById("result").style.display="block";
 document.getElementById("result").innerHTML = `
-<div><strong>Owner PVID:</strong> ${generatePVID()}</div>
+<div><strong>Owner PVID:</strong> ${ownerPVID}</div>
 <div class="score">CRL ${crl}</div>
 <div>Status: ${status}</div>`;
 
-// Pending Verification Box
+// Pending Verification
 if(pending.length>0){
-document.getElementById("pendingInfo").style.display="block";
-document.getElementById("pendingInfo").innerHTML = `
-<strong>Pending Verification Notes:</strong><br>
-<ul>${pending.map(x=>`<li>${x}</li>`).join('')}</ul>
-<span>Improving these signals increases trust and liquidity for market participation.</span>`;
+  document.getElementById("pendingInfo").style.display="block";
+  document.getElementById("pendingInfo").innerHTML = `
+  <strong>Pending Verification Notes:</strong><br>
+  <ul>${pending.map(x=>`<li>${x}</li>`).join('')}</ul>
+  <span>Improving these ID signals increases trust and market liquidity.</span>`;
 }else{
-document.getElementById("pendingInfo").style.display="none";
+  document.getElementById("pendingInfo").style.display="none";
 }
 
 // Generate QR
 document.getElementById("qrcode").style.display="block";
 QRCode.toCanvas(document.getElementById('qrcode'), JSON.stringify({
-  OwnerName: ownerName,
+  Owner: {Name:ownerName, ID:ownerID, BankID:ownerBank, Residential:ownerRes, PVID:ownerPVID},
   CRL: crl,
   Status: status,
   PendingNotes: pending,

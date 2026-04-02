@@ -3,138 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FSTL COMET OS - Global 50+ Countries Demo</title>
+<title>FSTL COMET OS - Global Demo</title>
+
 <style>
 * { box-sizing: border-box; }
-body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; background: #f5f7fb; color: #1a1a1a; }
-header { background: #0a2a66; color: #fff; padding: 16px; text-align: center; }
-header h1 { margin: 0; font-size: 18px; font-weight: 600; }
-header p { margin: 4px 0 0; font-size: 13px; opacity: 0.8; }
-.container { max-width: 950px; margin: 20px auto; padding: 0 15px; }
-.card { background: #fff; padding: 18px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; }
-.section-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #0a2a66; }
-label { font-size: 12px; color: #555; display: block; margin-bottom: 4px; }
-input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 12px; font-size: 14px; }
-.row { display: flex; gap: 10px; }
-.row > div { flex: 1; }
-button { width: 100%; padding: 12px; background: #0a2a66; color: #fff; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; margin-bottom: 10px; }
-button:hover { background: #081f4d; }
-.status { padding: 6px 10px; border-radius: 6px; font-size: 12px; display: inline-block; font-weight:600; }
-.status.verified { background: #e6f4ea; color: #1e7e34; }
-.status.pending { background: #fff3cd; color: #856404; }
-.status.rejected { background: #f8d7da; color: #721c24; }
-#dashboard { width: 100%; border-collapse: collapse; margin-top: 20px; }
-#dashboard th, #dashboard td { border: 1px solid #ddd; padding: 8px; font-size: 13px; text-align: center; }
-#dashboard th { background: #0a2a66; color: #fff; }
-#searchInput { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 12px; display:none; }
-#successPopup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border-radius: 12px; padding: 25px 35px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); text-align: center; display: none; z-index: 999; }
-#successPopup h2 { color: #1e7e34; margin-bottom: 10px; font-size: 18px; }
-#successPopup p { font-size: 13px; margin-bottom: 15px; }
-#successPopup .tick { width: 50px; height: 50px; margin: 0 auto 10px; border-radius: 50%; border: 3px solid #1e7e34; display: flex; align-items: center; justify-content: center; position: relative; animation: scaleUp 0.5s ease-out; }
-#successPopup .tick::after { content: ''; position: absolute; width: 14px; height: 7px; border-left: 3px solid #1e7e34; border-bottom: 3px solid #1e7e34; transform: rotate(-45deg); top: 16px; left: 12px; }
-@keyframes scaleUp { 0% {transform: scale(0);} 100% {transform: scale(1);} }
-#loginCard { max-width: 400px; margin: 50px auto; display: block; }
-footer { text-align: center; font-size: 11px; padding: 15px; color: #888; }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto; background:#f5f7fb; }
+header { background:#0a2a66; color:#fff; padding:16px; text-align:center; }
+header h1 { margin:0; font-size:18px; }
+.container { max-width:900px; margin:20px auto; padding:0 15px; }
+.card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:15px; }
+label { font-size:12px; color:#555; }
+input,select { width:100%; padding:10px; margin:8px 0 12px; border:1px solid #ddd; border-radius:6px; }
+.row { display:flex; gap:10px; }
+.row div { flex:1; }
+button { width:100%; padding:12px; background:#0a2a66; color:#fff; border:none; border-radius:8px; cursor:pointer; }
+button:hover { background:#081f4d; }
+
+.status { padding:5px 10px; border-radius:6px; font-size:12px; font-weight:600; }
+.verified { background:#e6f4ea; color:#1e7e34; }
+.pending { background:#fff3cd; color:#856404; }
+.rejected { background:#f8d7da; color:#721c24; }
+
+#dashboard { width:100%; border-collapse:collapse; margin-top:15px; }
+#dashboard th,#dashboard td { border:1px solid #ddd; padding:6px; font-size:12px; text-align:center; }
+#dashboard th { background:#0a2a66; color:#fff; }
+
+#successPopup {
+position:fixed; top:50%; left:50%;
+transform:translate(-50%,-50%);
+background:#fff; padding:25px;
+border-radius:12px;
+box-shadow:0 8px 25px rgba(0,0,0,0.2);
+display:none; text-align:center;
+}
+.tick {
+width:50px;height:50px;border:3px solid #1e7e34;border-radius:50%;
+margin:auto;position:relative;
+}
+.tick::after {
+content:''; position:absolute;
+width:14px;height:7px;
+border-left:3px solid #1e7e34;
+border-bottom:3px solid #1e7e34;
+transform:rotate(-45deg);
+top:16px;left:12px;
+}
 </style>
 </head>
+
 <body>
 
 <header>
 <h1>FSTL COMET OS</h1>
-<p>Global Verification Demo – 50+ Countries</p>
+<p>Global Verification System</p>
 </header>
 
 <div class="container">
 
 <!-- LOGIN -->
 <div id="loginCard" class="card">
-  <div class="section-title">Agent Login</div>
-  <label>Agent ID</label>
-  <input id="loginAgentID">
-  <label>Password</label>
-  <input type="password" id="loginPassword">
-  <label>Country</label>
-  <select id="agentCountry">
-    <!-- 5 Demo Countries -->
-    <option value="Nigeria">Nigeria 🇳🇬</option>
-    <option value="USA">USA 🇺🇸</option>
-    <option value="UK">UK 🇬🇧</option>
-    <option value="India">India 🇮🇳</option>
-    <option value="Canada">Canada 🇨🇦</option>
-    <!-- Additional 45 countries (sample) -->
-    <option value="Australia">Australia 🇦🇺</option>
-    <option value="Brazil">Brazil 🇧🇷</option>
-    <option value="China">China 🇨🇳</option>
-    <option value="France">France 🇫🇷</option>
-    <option value="Germany">Germany 🇩🇪</option>
-    <option value="Italy">Italy 🇮🇹</option>
-    <option value="Japan">Japan 🇯🇵</option>
-    <option value="Mexico">Mexico 🇲🇽</option>
-    <option value="Russia">Russia 🇷🇺</option>
-    <option value="South Africa">South Africa 🇿🇦</option>
-    <option value="Spain">Spain 🇪🇸</option>
-    <option value="Turkey">Turkey 🇹🇷</option>
-    <option value="Argentina">Argentina 🇦🇷</option>
-    <option value="Belgium">Belgium 🇧🇪</option>
-    <option value="Colombia">Colombia 🇨🇴</option>
-    <option value="Egypt">Egypt 🇪🇬</option>
-    <option value="Greece">Greece 🇬🇷</option>
-    <option value="Indonesia">Indonesia 🇮🇩</option>
-    <option value="Ireland">Ireland 🇮🇪</option>
-    <option value="Malaysia">Malaysia 🇲🇾</option>
-    <option value="Netherlands">Netherlands 🇳🇱</option>
-    <option value="New Zealand">New Zealand 🇳🇿</option>
-    <option value="Nigeria">Nigeria 🇳🇬</option>
-    <option value="Norway">Norway 🇳🇴</option>
-    <option value="Philippines">Philippines 🇵🇭</option>
-    <option value="Poland">Poland 🇵🇱</option>
-    <option value="Portugal">Portugal 🇵🇹</option>
-    <option value="Saudi Arabia">Saudi Arabia 🇸🇦</option>
-    <option value="Singapore">Singapore 🇸🇬</option>
-    <option value="South Korea">South Korea 🇰🇷</option>
-    <option value="Sweden">Sweden 🇸🇪</option>
-    <option value="Switzerland">Switzerland 🇨🇭</option>
-    <option value="Thailand">Thailand 🇹🇭</option>
-    <option value="UAE">UAE 🇦🇪</option>
-    <option value="Vietnam">Vietnam 🇻🇳</option>
-    <option value="Pakistan">Pakistan 🇵🇰</option>
-    <option value="Bangladesh">Bangladesh 🇧🇩</option>
-    <option value="Chile">Chile 🇨🇱</option>
-    <option value="Czech Republic">Czech Republic 🇨🇿</option>
-    <option value="Denmark">Denmark 🇩🇰</option>
-    <option value="Finland">Finland 🇫🇮</option>
-    <option value="Hungary">Hungary 🇭🇺</option>
-    <option value="Iceland">Iceland 🇮🇸</option>
-    <option value="Israel">Israel 🇮🇱</option>
-  </select>
-  <button onclick="loginAgent()">Login</button>
+<label>Agent ID</label>
+<input id="loginAgentID">
+
+<label>Country</label>
+<select id="agentCountry">
+<option>Nigeria</option>
+<option>USA</option>
+<option>UK</option>
+<option>India</option>
+<option>Canada</option>
+<option>Germany</option>
+<option>France</option>
+<option>Spain</option>
+<option>Italy</option>
+<option>Brazil</option>
+<option>South Africa</option>
+<option>UAE</option>
+<option>China</option>
+<option>Japan</option>
+<option>Australia</option>
+<option>Mexico</option>
+<option>Turkey</option>
+<option>Netherlands</option>
+<option>Sweden</option>
+<option>Switzerland</option>
+<option>Norway</option>
+<option>Denmark</option>
+<option>Finland</option>
+<option>Poland</option>
+<option>Argentina</option>
+<option>Chile</option>
+<option>Pakistan</option>
+<option>Bangladesh</option>
+<option>Indonesia</option>
+<option>Philippines</option>
+<option>Malaysia</option>
+<option>Singapore</option>
+<option>Thailand</option>
+<option>Vietnam</option>
+<option>Israel</option>
+<option>Egypt</option>
+<option>Greece</option>
+<option>Portugal</option>
+<option>Belgium</option>
+<option>Ireland</option>
+<option>New Zealand</option>
+</select>
+
+<button onclick="loginAgent()">ENTER SYSTEM</button>
 </div>
 
-<!-- VERIFICATION FORM -->
-<div id="verificationCard" class="card" style="display:none;">
-<div class="section-title">New Verification</div>
+<!-- FORM -->
+<div id="mainApp" style="display:none">
 
-<label>Owner Full Name</label>
+<div class="card">
+<label>Owner Name</label>
 <input id="ownerName">
 
 <label>Owner Country</label>
-<select id="ownerCountry" onchange="updateOwnerLabels()">
-  <!-- same 50+ countries as above -->
-  <option value="Nigeria">Nigeria 🇳🇬</option>
-  <option value="USA">USA 🇺🇸</option>
-  <option value="UK">UK 🇬🇧</option>
-  <option value="India">India 🇮🇳</option>
-  <option value="Canada">Canada 🇨🇦</option>
-  <!-- rest 45 countries omitted for brevity, same as above -->
+<select id="ownerCountry" onchange="updateLabels()">
+<option>Nigeria</option>
+<option>USA</option>
+<option>UK</option>
+<option>India</option>
+<option>Canada</option>
+<option>Germany</option>
+<option>France</option>
+<option>Brazil</option>
+<option>Japan</option>
 </select>
 
 <div class="row">
 <div>
-<label id="ownerIDLabel">Owner NIN</label>
+<label id="idLabel">NIN</label>
 <input id="ownerID">
 </div>
 <div>
-<label id="ownerBankLabel">Owner BVN</label>
+<label id="bankLabel">BVN</label>
 <input id="ownerBank">
 </div>
 </div>
@@ -144,165 +149,131 @@ footer { text-align: center; font-size: 11px; padding: 15px; color: #888; }
 
 <label>Property Type</label>
 <select id="propertyType">
-<option value="">Select</option>
 <option>Residential</option>
 <option>Commercial</option>
 <option>Land</option>
 </select>
 
-<label>Agent Name</label>
+<label>Agent</label>
 <input id="agentName" disabled>
 
-<div class="row">
-<div>
-<label id="agentIDLabel">Agent NIN</label>
-<input id="agentID">
-</div>
-<div>
-<label id="agentBankLabel">Agent BVN</label>
-<input id="agentBank">
-</div>
+<button onclick="verify()">VERIFY</button>
 </div>
 
-<button onclick="verify()">Run Verification</button>
-</div>
+<input id="searchInput" placeholder="Search..." onkeyup="search()" style="display:none">
 
-<input type="text" id="searchInput" placeholder="Search by PVID, Owner, Property..." onkeyup="searchDashboard()">
-<table id="dashboard" style="display:none;">
+<table id="dashboard" style="display:none">
 <thead>
 <tr>
 <th>PVID</th>
 <th>Owner</th>
 <th>Country</th>
 <th>Property</th>
-<th>Property Type</th>
-<th>Owner CID</th>
-<th>Property CID</th>
 <th>Agent</th>
-<th>Agent CID</th>
 <th>Status</th>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
 
-<footer>
-FSTL COMET OS – Verification Only – Not Legal Title
-</footer>
+</div>
+
+</div>
 
 <div id="successPopup">
-  <div class="tick"></div>
-  <h2>Verification Complete</h2>
-  <p>PDF has been generated and is ready to download.</p>
+<div class="tick"></div>
+<h3>Verification Complete</h3>
+<p>PDF Generated</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
 <script>
-const demoAgents = [
-  {agentID:'AG1001', name:'Alice Demo', password:'demo1', country:'Nigeria'},
-  {agentID:'AG1002', name:'Bob Demo', password:'demo2', country:'USA'},
-  {agentID:'AG1003', name:'Charlie Demo', password:'demo3', country:'UK'}
-];
-let records = [];
-let currentAgentID = null;
+let records=[];
+let currentAgent="";
 
 function loginAgent(){
-  const id = document.getElementById('loginAgentID').value;
-  const pass = document.getElementById('loginPassword').value;
-  const agent = demoAgents.find(a=>a.agentID===id && a.password===pass);
-  if(agent){
-    currentAgentID = agent.agentID;
-    document.getElementById('loginCard').style.display='none';
-    document.getElementById('verificationCard').style.display='block';
-    document.getElementById('searchInput').style.display='block';
-    document.getElementById('dashboard').style.display='table';
-    document.getElementById('agentName').value = agent.name;
-    updateAgentLabels(agent.country);
-    alert('Login successful: ' + agent.name + ' (' + agent.country + ')');
-  } else { alert('Invalid Agent ID or Password'); }
+const id=document.getElementById('loginAgentID').value;
+const country=document.getElementById('agentCountry').value;
+
+if(!id){ alert("Enter Agent ID"); return; }
+
+currentAgent=id;
+
+document.getElementById('loginCard').style.display='none';
+document.getElementById('mainApp').style.display='block';
+document.getElementById('agentName').value="Agent "+id;
+
+alert("Welcome Agent "+id+" ("+country+")");
 }
 
-function updateOwnerLabels(){
-  const country = document.getElementById('ownerCountry').value;
-  const labels = {
-    'Nigeria':['Owner NIN','Owner BVN'],
-    'USA':['Owner SSN','Bank Routing Number'],
-    'UK':['Owner NI Number','Sort Code'],
-    'India':['Owner Aadhaar','Bank Account Number'],
-    'Canada':['Owner SIN','Bank Account Number']
-  };
-  document.getElementById('ownerIDLabel').innerText = labels[country] ? labels[country][0] : 'Owner National ID';
-  document.getElementById('ownerBankLabel').innerText = labels[country] ? labels[country][1] : 'Bank Account Number';
-}
-
-function updateAgentLabels(country){
-  const labels = {
-    'Nigeria':['Agent NIN','Agent BVN'],
-    'USA':['Agent SSN','Bank Routing Number'],
-    'UK':['Agent NI Number','Sort Code'],
-    'India':['Agent Aadhaar','Bank Account Number'],
-    'Canada':['Agent SIN','Bank Account Number']
-  };
-  document.getElementById('agentIDLabel').innerText = labels[country] ? labels[country][0] : 'Agent National ID';
-  document.getElementById('agentBankLabel').innerText = labels[country] ? labels[country][1] : 'Bank Account Number';
+function updateLabels(){
+const c=document.getElementById("ownerCountry").value;
+const map={
+Nigeria:["NIN","BVN"],
+USA:["SSN","Routing Number"],
+UK:["NI Number","Sort Code"],
+India:["Aadhaar","Bank Account"],
+Canada:["SIN","Bank Account"]
+};
+document.getElementById("idLabel").innerText=map[c]?map[c][0]:"National ID";
+document.getElementById("bankLabel").innerText=map[c]?map[c][1]:"Bank Number";
 }
 
 function verify(){
-const ownerName = document.getElementById("ownerName").value;
-const ownerID = document.getElementById("ownerID").value;
-const ownerBank = document.getElementById("ownerBank").value;
-const ownerCountry = document.getElementById("ownerCountry").value;
-const propertyAddress = document.getElementById("propertyAddress").value;
-const propertyType = document.getElementById("propertyType").value;
-const agentName = document.getElementById("agentName").value;
-const agentIDVal = document.getElementById("agentID").value;
-const agentBankVal = document.getElementById("agentBank").value;
-const rand = ()=>Math.floor(1000+Math.random()*9000);
-const ownerCID = `FSTL-OWN-${ownerCountry.substring(0,2).toUpperCase()}-${rand()}`;
-const propertyCID = `FSTL-PRP-${ownerCountry.substring(0,2).toUpperCase()}-${rand()}`;
-const agentCID = `FSTL-AG-${ownerCountry.substring(0,2).toUpperCase()}-${rand()}`;
-const d=new Date();
-const pvid = `FSTL-PV-${ownerCountry.substring(0,2).toUpperCase()}-${d.getFullYear()}${d.getMonth()+1}${d.getDate()}-${rand()}`;
-let status = "verified";
-if(!ownerName || !propertyAddress) status="rejected";
-else if((ownerID && ownerID.length<6) || (ownerBank && ownerBank.length<6)) status="pending";
-records.unshift({pvid, ownerName, ownerCountry, propertyAddress, propertyType, ownerCID, propertyCID, agentName, agentCID, status, agentID: currentAgentID});
-renderDashboard();
-const { jsPDF } = window.jspdf;
-const pdf = new jsPDF();
-pdf.text("FSTL COMET OS Verification Record",20,20);
-pdf.text("Owner: "+ownerName,20,30);
-pdf.text("Country: "+ownerCountry,20,40);
-pdf.text("Owner CID: "+ownerCID,20,50);
-pdf.text("Property: "+propertyAddress,20,60);
-pdf.text("Property CID: "+propertyCID,20,70);
-pdf.text("Agent: "+agentName,20,80);
-pdf.text("Agent CID: "+agentCID,20,90);
-pdf.text("PVID: "+pvid,20,100);
-pdf.text("Status: "+status.toUpperCase(),20,110);
-QRCode.toDataURL(JSON.stringify({pvid, ownerCID, propertyCID, agentCID, status}), function(err,img){
+const owner=document.getElementById("ownerName").value;
+const country=document.getElementById("ownerCountry").value;
+const property=document.getElementById("propertyAddress").value;
+
+const rand=()=>Math.floor(Math.random()*9000+1000);
+const pvid=`FSTL-${country.substring(0,2).toUpperCase()}-${rand()}`;
+
+let status="verified";
+if(!owner||!property) status="rejected";
+
+records.unshift({pvid,owner,country,property,agent:currentAgent,status});
+
+render();
+
+const {jsPDF}=window.jspdf;
+const pdf=new jsPDF();
+pdf.text("FSTL Verification",20,20);
+pdf.text("Owner: "+owner,20,30);
+pdf.text("Property: "+property,20,40);
+pdf.text("PVID: "+pvid,20,50);
+
+QRCode.toDataURL(pvid,function(err,img){
 pdf.addImage(img,'PNG',150,20,40,40);
 pdf.save("verification.pdf");
+
 document.getElementById("successPopup").style.display="block";
-setTimeout(()=>document.getElementById("successPopup").style.display="none",4000);
+setTimeout(()=>document.getElementById("successPopup").style.display="none",3000);
 });
 }
 
-function renderDashboard(){
-const tbody=document.querySelector("#dashboard tbody");
-tbody.innerHTML="";
-records.filter(r=>r.agentID===currentAgentID).forEach(r=>{
-const tr=document.createElement("tr");
-tr.innerHTML=`<td>${r.pvid}</td><td>${r.ownerName}</td><td>${r.ownerCountry}</td><td>${r.propertyAddress}</td><td>${r.propertyType}</td><td>${r.ownerCID}</td><td>${r.propertyCID}</td><td>${r.agentName}</td><td>${r.agentCID}</td><td><span class="status ${r.status}">${r.status.toUpperCase()}</span></td>`;
-tbody.appendChild(tr);
+function render(){
+const tb=document.querySelector("#dashboard tbody");
+tb.innerHTML="";
+records.forEach(r=>{
+tb.innerHTML+=`
+<tr>
+<td>${r.pvid}</td>
+<td>${r.owner}</td>
+<td>${r.country}</td>
+<td>${r.property}</td>
+<td>${r.agent}</td>
+<td><span class="${r.status}">${r.status}</span></td>
+</tr>`;
 });
+document.getElementById("dashboard").style.display="table";
+document.getElementById("searchInput").style.display="block";
 }
 
-function searchDashboard(){
-const query=document.getElementById("searchInput").value.toLowerCase();
-document.querySelector("#dashboard tbody").querySelectorAll("tr").forEach(row=>{
-row.style.display=row.innerText.toLowerCase().includes(query) ? "" : "none";
+function search(){
+const q=document.getElementById("searchInput").value.toLowerCase();
+document.querySelectorAll("#dashboard tbody tr").forEach(r=>{
+r.style.display=r.innerText.toLowerCase().includes(q)?"":"none";
 });
 }
 </script>

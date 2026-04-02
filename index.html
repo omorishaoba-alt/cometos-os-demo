@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FSTL COMET OS Demo</title>
 
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f6f9;
+}
+
+header {
+  background: #0a2a66;
+  color: #fff;
+  padding: 15px;
+  text-align: center;
+}
+
+footer {
+  background: #0a2a66;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+h2 {
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 12px;
+  width: 100%;
+  background: #0a2a66;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.preview {
+  margin-top: 30px;
+  padding: 15px;
+  border: 2px dashed #0a2a66;
+  background: #eef3ff;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>FSTL COMET OS</h1>
+<p>Property Verification Demo – Nigeria Pilot</p>
+</header>
+
+<div class="container">
+
+<form id="form">
+
+<h2>Owner Details</h2>
+<label>Owner Name</label>
+<input id="ownerName" required>
+
+<label>Owner NIN / BVN</label>
+<input id="ownerID" required>
+
+<label>Contact</label>
+<input id="ownerContact" required>
+
+<h2>Property Details</h2>
+<label>Property Address</label>
+<input id="propertyAddress" required>
+
+<label>Property Type</label>
+<select id="propertyType" required>
+<option value="">Select</option>
+<option>Residential</option>
+<option>Commercial</option>
+<option>Land</option>
+</select>
+
+<h2>Agent Details</h2>
+<label>Agent Name</label>
+<input id="agentName" required>
+
+<label>Agent ID</label>
+<input id="agentID" required>
+
+<label>Agent NIN / BVN</label>
+<input id="agentNIN" required>
+
+<button type="button" onclick="runDemo()">Generate Verification</button>
+
+</form>
+
+<div class="preview">
+<h3>Verification Output</h3>
+
+<p><b>Owner:</b> <span id="oName"></span></p>
+<p><b>Owner ID:</b> <span id="oID"></span></p>
+
+<p><b>Property:</b> <span id="pAddr"></span></p>
+<p><b>Type:</b> <span id="pType"></span></p>
+
+<p><b>Agent:</b> <span id="aName"></span></p>
+<p><b>Agent ID:</b> <span id="aID"></span></p>
+
+<p><b>PVID:</b> <span id="pvid"></span></p>
+<p><b>Status:</b> <span id="status"></span></p>
+
+<canvas id="qr"></canvas>
+
+</div>
+
+</div>
+
+<footer>
+COMET OS – FSTL | Verification Only – Not Legal Title
+</footer>
+
+<!-- LIBRARIES -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<script>
+
+function runDemo() {
+
+const ownerName = document.getElementById("ownerName").value;
+const ownerID = document.getElementById("ownerID").value;
+const propertyAddress = document.getElementById("propertyAddress").value;
+const propertyType = document.getElementById("propertyType").value;
+const agentName = document.getElementById("agentName").value;
+const agentID = document.getElementById("agentID").value;
+const agentNIN = document.getElementById("agentNIN").value;
+
+// Generate PVID
+const d = new Date();
+const pvid = "FSTL-PV-NG-" +
+d.getFullYear() +
+String(d.getMonth()+1).padStart(2,'0') +
+String(d.getDate()).padStart(2,'0') +
+"-" +
+Math.floor(1000 + Math.random()*9000);
+
+// Update preview
+document.getElementById("oName").innerText = ownerName;
+document.getElementById("oID").innerText = ownerID;
+document.getElementById("pAddr").innerText = propertyAddress;
+document.getElementById("pType").innerText = propertyType;
+document.getElementById("aName").innerText = agentName;
+document.getElementById("aID").innerText = agentID;
+document.getElementById("pvid").innerText = pvid;
+document.getElementById("status").innerText = "VERIFIED (DEMO)";
+
+// QR
+const url = "https://cometos.fstl.global/verify?PVID=" + pvid;
+QRCode.toCanvas(document.getElementById("qr"), url);
+
+// PDF
+const { jsPDF } = window.jspdf;
+const pdf = new jsPDF();
+
+// HEADER
+pdf.setFontSize(16);
+pdf.text("FSTL COMET OS Verification Report", 20, 20);
+pdf.setFontSize(10);
+pdf.text("Nigeria Pilot", 160, 20);
+
+// BODY
+pdf.text("Owner: " + ownerName, 20, 40);
+pdf.text("Owner ID: " + ownerID, 20, 50);
+pdf.text("Property: " + propertyAddress, 20, 60);
+pdf.text("Type: " + propertyType, 20, 70);
+
+pdf.text("Agent: " + agentName, 20, 90);
+pdf.text("Agent ID: " + agentID, 20, 100);
+pdf.text("Agent NIN/BVN: " + agentNIN, 20, 110);
+
+pdf.text("PVID: " + pvid, 20, 130);
+pdf.text("Status: VERIFIED (DEMO)", 20, 140);
+
+// FOOTER
+pdf.setFontSize(8);
+pdf.text("COMET OS – FSTL | Verification Only – Not Legal Title", 20, 280);
+
+// QR embed
+QRCode.toDataURL(url, function(err, img){
+pdf.addImage(img, 'PNG', 150, 40, 40, 40);
+pdf.save("FSTL_VERIFICATION_" + pvid + ".pdf");
+});
+
+}
+
+</script>
+
+</body>
+</html>

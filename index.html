@@ -8,9 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-body { margin:0; font-family:'Inter', sans-serif; background:#f4f6f8; color:#1c1e21; }
+body { margin:0; font-family:'Inter', sans-serif; background:#f5f7fa; color:#1c1e21; }
 
-/* LANDING PAGE */
 #landing {
   height:100vh;
   display:flex;
@@ -22,28 +21,27 @@ body { margin:0; font-family:'Inter', sans-serif; background:#f4f6f8; color:#1c1
   color:#fff;
   padding:20px;
 }
-#landing h1 { font-size:2.2rem; margin-bottom:10px; }
-#landing p { max-width:500px; }
-#landing button { margin-top:20px; padding:12px 20px; border:none; border-radius:8px; background:#fff; color:#0b4f6c; font-weight:600; cursor:pointer; }
+#landing h1 { font-size:2rem; margin-bottom:10px; }
+#landing p { max-width:520px; }
+#landing button { margin-top:20px; padding:12px 20px; border:none; border-radius:6px; background:#fff; color:#0b4f6c; font-weight:600; cursor:pointer; }
 
-/* APP */
 #app { display:none; padding:20px; max-width:900px; margin:auto; }
 
 .card {
   background:#fff;
   padding:20px;
-  border-radius:12px;
+  border-radius:10px;
   margin-bottom:20px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+  box-shadow:0 3px 8px rgba(0,0,0,0.05);
 }
 
-h2 { margin-bottom:10px; font-size:1.2rem; color:#0b4f6c; }
+h2 { font-size:1.1rem; margin-bottom:10px; color:#0b4f6c; }
 
 input, textarea, select {
   width:100%;
   padding:10px;
   margin-bottom:10px;
-  border-radius:8px;
+  border-radius:6px;
   border:1px solid #ccc;
 }
 
@@ -53,69 +51,80 @@ button.main {
   background:#0b4f6c;
   color:#fff;
   border:none;
-  border-radius:8px;
+  border-radius:6px;
   font-weight:600;
   cursor:pointer;
 }
 
 .dashboard { display:none; }
 .qr-box { text-align:center; margin-top:15px; }
-
-.report-note {
-  background:#eef7fa;
-  padding:10px;
-  border-radius:8px;
-  font-size:0.9rem;
-}
+.section-note { font-size:0.9rem; color:#555; }
 </style>
 </head>
 
 <body>
 
-<!-- LANDING PAGE -->
+<!-- LANDING -->
 <div id="landing">
   <h1>FSTL COMET OS</h1>
-  <p>
-    Digital Property Verification System  
-    Create a <b>PVID</b>, receive a <b>CRL</b>, and share a QR for safe property transactions.
-  </p>
-  <p>
-    Scan. Verify. Participate.
-  </p>
-  <button onclick="start()">Enter System</button>
+  <p>Digital Property Verification Infrastructure</p>
+  <p>Verify identity-linked property claims. Generate a PVID. Share a verifiable QR record.</p>
+  <button onclick="start()">Proceed</button>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app">
 
 <div class="card">
-  <h2>Owner Verification</h2>
-
-  <input id="name" placeholder="Owner Full Name">
-  <input id="nin" placeholder="National ID (NIN / Equivalent)">
-  <input id="bvn" placeholder="Financial ID (BVN / Equivalent)">
-  <textarea id="property" placeholder="Property Description / Address"></textarea>
-
-  <button class="main" onclick="verify()">Generate PVID & Verification</button>
+<h2>Owner Identity</h2>
+<input id="name" placeholder="Full Name">
+<input id="nin" placeholder="National ID (NIN / Equivalent)">
+<input id="bvn" placeholder="Financial ID (BVN / Equivalent)">
+<input id="resAddress" placeholder="Residential Address">
 </div>
 
+<div class="card">
+<h2>Contact Details</h2>
+<input id="phone" placeholder="Phone Number">
+<input id="whatsapp" placeholder="WhatsApp Number">
+<input id="email" placeholder="Email Address">
+</div>
+
+<div class="card">
+<h2>Declared Claim</h2>
+<select id="claim">
+<option value="">Select Claim Type</option>
+<option>Personal Ownership</option>
+<option>Family Property</option>
+<option>Authorized Representative</option>
+<option>Agent Acting on Behalf</option>
+</select>
+</div>
+
+<div class="card">
+<h2>Property</h2>
+<textarea id="property" placeholder="Property Address / Description"></textarea>
+</div>
+
+<button class="main" onclick="verify()">Generate Verification</button>
+
 <div class="card dashboard" id="dashboard">
-  <h2>Verification Result</h2>
+<h2>Verification Record</h2>
 
-  <p><b>Owner:</b> <span id="dName"></span></p>
-  <p><b>PVID:</b> <span id="dPvid"></span></p>
-  <p><b>Property:</b> <span id="dProperty"></span></p>
-  <p><b>CRL:</b> <span id="dCrl"></span></p>
-  <p><b>Status:</b> VERIFIED</p>
+<p><b>Owner:</b> <span id="dName"></span></p>
+<p><b>PVID:</b> <span id="dPvid"></span></p>
+<p><b>Property:</b> <span id="dProperty"></span></p>
+<p><b>Claim:</b> <span id="dClaim"></span></p>
+<p><b>CRL:</b> <span id="dCrl"></span></p>
+<p><b>Status:</b> VERIFIED</p>
 
-  <div class="qr-box" id="qr"></div>
+<div class="qr-box" id="qr"></div>
 
-  <div class="report-note">
-    This verification confirms a consistent identity-linked property claim.
-    Share your QR or PDF to enable faster and safer transactions.
-  </div>
+<p class="section-note">
+Use this PVID or QR for all property-related engagements.
+</p>
 
-  <button class="main" onclick="downloadPDF()">Download Report (PDF)</button>
+<button class="main" onclick="downloadPDF()">Download Report</button>
 </div>
 
 </div>
@@ -135,38 +144,40 @@ function generatePVID(name){
 }
 
 function generateCRL(){
-  return "Level " + (Math.floor(Math.random()*2)+4); // Level 4-5
+  return "Level 4 — Strong Consistency";
 }
 
 function verify(){
+
   const name = document.getElementById("name").value.trim();
   const property = document.getElementById("property").value.trim();
+  const claim = document.getElementById("claim").value;
 
-  if(!name || !property){
-    alert("Fill required fields");
+  if(!name || !property || !claim){
+    alert("Complete required fields.");
     return;
   }
 
   const pvid = generatePVID(name);
   const crl = generateCRL();
-  const timestamp = new Date().toLocaleString();
+  const time = new Date().toLocaleString();
 
-  const qrData = `
-FSTL COMET OS RECORD
+  const qrData =
+`FSTL COMET OS RECORD
 
-Owner: ${name}
 PVID: ${pvid}
+Owner: ${name}
 Property: ${property}
+
+Claim: ${claim}
 CRL: ${crl}
 Status: VERIFIED
-Time: ${timestamp}
-
-This is a digital property verification record.
-  `;
+Time: ${time}`;
 
   document.getElementById("dName").innerText = name;
   document.getElementById("dPvid").innerText = pvid;
   document.getElementById("dProperty").innerText = property;
+  document.getElementById("dClaim").innerText = claim;
   document.getElementById("dCrl").innerText = crl;
 
   document.getElementById("dashboard").style.display = "block";
@@ -181,34 +192,36 @@ function downloadPDF(){
   const name = document.getElementById("dName").innerText;
   const pvid = document.getElementById("dPvid").innerText;
   const property = document.getElementById("dProperty").innerText;
+  const claim = document.getElementById("dClaim").innerText;
   const crl = document.getElementById("dCrl").innerText;
 
-  doc.setFontSize(16);
+  doc.setFontSize(14);
   doc.text("FSTL COMET OS VERIFICATION REPORT", 20, 20);
 
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.text(`Owner: ${name}`, 20, 40);
   doc.text(`Property: ${property}`, 20, 50);
-  doc.text(`PVID: ${pvid}`, 20, 60);
-  doc.text(`CRL: ${crl}`, 20, 70);
-  doc.text(`Status: VERIFIED`, 20, 80);
+  doc.text(`Claim: ${claim}`, 20, 60);
+  doc.text(`PVID: ${pvid}`, 20, 70);
+  doc.text(`CRL: ${crl}`, 20, 80);
+  doc.text(`Status: VERIFIED`, 20, 90);
 
-  doc.text("Verification Summary:", 20, 100);
-  doc.text("This record reflects a consistent identity-linked property claim.", 20, 110);
+  doc.text("Verification Summary:", 20, 110);
+  doc.text("This record reflects a consistent identity-linked property claim.", 20, 120);
 
-  doc.text("System Comment:", 20, 130);
-  doc.text("The identity signals provided indicate a strong trust pattern.", 20, 140);
+  doc.text("System Comment:", 20, 140);
+  doc.text("Identity signals and declared claim show strong consistency.", 20, 150);
 
-  doc.text("Important Notice:", 20, 160);
-  doc.text("FSTL COMET OS verifies identity-linked claims, not legal ownership.", 20, 170);
+  doc.text("Instruction:", 20, 170);
+  doc.text("Use this PVID or QR for all property engagements.", 20, 180);
 
   const canvas = document.querySelector("#qr canvas");
   if(canvas){
     const img = canvas.toDataURL("image/png");
-    doc.addImage(img, 'PNG', 20, 190, 50, 50);
+    doc.addImage(img, 'PNG', 20, 200, 50, 50);
   }
 
-  doc.save("COMET_OS_REPORT.pdf");
+  doc.save("FSTL_COMET_OS_REPORT.pdf");
 }
 
 </script>

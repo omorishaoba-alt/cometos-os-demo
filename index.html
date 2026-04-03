@@ -6,12 +6,17 @@
 <title>FSTL COMET OS Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body { margin:0; font-family: 'Roboto', sans-serif; background:#f4f6f8; color:#1c1e21; }
+/* General Styles */
+body { margin:0; font-family:'Roboto', sans-serif; background:#f4f6f8; color:#1c1e21; }
 header, footer { background:#0b4f6c; color:#fff; text-align:center; padding:1rem 2rem; }
-h1, h2, h3 { margin:0; }
+h1,h2,h3 { margin:0; }
 main { padding:2rem; max-width:1000px; margin:auto; }
+
+/* Buttons */
 button { cursor:pointer; border:none; border-radius:8px; padding:0.8rem 1rem; font-weight:600; background:#0b4f6c; color:#fff; transition:0.2s; }
 button:hover { background:#093d53; }
+
+/* Forms */
 form { background:#fff; padding:2rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:2rem; }
 label { display:block; font-weight:500; margin-bottom:0.3rem; }
 input, select, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem; border-radius:8px; border:1px solid #ccc; font-size:0.95rem; }
@@ -21,34 +26,33 @@ input, select, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem;
 .next-steps { background:#e0f2f1; padding:1rem; border-radius:12px; }
 .next-steps ul { margin:0; padding-left:1.2rem; }
 .next-steps li { margin-bottom:0.5rem; }
+
 /* Landing Page */
-.hero { text-align:center; padding:4rem 2rem; background:#e1f5fe; border-radius:12px; margin-bottom:2rem; }
-.hero h1 { font-size:2rem; color:#0b4f6c; }
-.hero p { font-size:1rem; margin-top:1rem; }
-.get-started { margin-top:2rem; }
+.landing { text-align:center; padding:4rem 2rem; background:#e1f5fe; min-height:100vh; display:flex; flex-direction:column; justify-content:center; }
+.landing h1 { font-size:2.2rem; color:#0b4f6c; }
+.landing p { font-size:1rem; margin-top:1rem; }
+.landing ul { display:inline-block; text-align:left; margin-top:1rem; }
+.landing button { margin-top:2rem; }
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<header>
-  <h1>FSTL COMET OS Demo</h1>
-</header>
-
-<main>
-
-<!-- LANDING / HERO SECTION -->
-<section class="hero">
+<!-- LANDING PAGE -->
+<div class="landing" id="landingPage">
   <h1>Welcome to FSTL COMET OS</h1>
-  <p>Your digital property verification system.</p>
+  <p>Your all-in-one digital property verification system.</p>
   <p>Create a unique <strong>PVID</strong> (Property Verification ID), receive a trust score <strong>CRL</strong>, and share a QR code to transact safely.</p>
-  <ul style="text-align:left; display:inline-block; margin-top:1rem;">
-    <li><strong>Step 1:</strong> Verify yourself as the property owner</li>
+  <ul>
+    <li><strong>Step 1:</strong> Owner verifies property ownership</li>
     <li><strong>Step 2:</strong> Generate PVID & CRL</li>
     <li><strong>Step 3:</strong> Share QR & PDF for secure transactions</li>
+    <li><strong>Step 4:</strong> Agents, buyers, and tenants can verify</li>
   </ul>
-  <button class="get-started" onclick="document.getElementById('ownerForm').scrollIntoView({behavior:'smooth'})">Get Started</button>
-</section>
+  <button onclick="startDemo()">Get Started</button>
+</div>
+
+<!-- MAIN CONTENT -->
+<main style="display:none;" id="mainContent">
 
 <!-- OWNER VERIFICATION FORM -->
 <form id="ownerForm">
@@ -120,14 +124,15 @@ input, select, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem;
   <button type="button" onclick="verifyUser()">Verify & Confirm Participation</button>
 </form>
 
-<!-- NEXT STEPS -->
+<!-- NEXT STEPS / Q&A -->
 <div class="next-steps" id="nextSteps" style="display:none;">
-  <div class="section-title">Next Steps After Verification</div>
+  <div class="section-title">Next Steps & Q&A</div>
   <ul>
     <li>Share your PVID QR with interested parties</li>
     <li>Engage an Agent for listing or negotiation</li>
     <li>Engage a Lawyer for agreements and contracts</li>
     <li>Secure the transaction with FSTL Title Insurance</li>
+    <li>All IDs (NIN/BVN) are purely for security; ownership is the key verification factor</li>
   </ul>
 </div>
 
@@ -142,6 +147,12 @@ input, select, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem;
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+// Start Demo: Hide Landing Page, show main
+function startDemo() {
+  document.getElementById('landingPage').style.display='none';
+  document.getElementById('mainContent').style.display='block';
+}
+
 // Helpers
 function generatePVID(name, property) {
   return 'PVID-' + name.replace(/\s/g,'').toUpperCase() + '-' + Math.floor(Math.random()*90000+10000);

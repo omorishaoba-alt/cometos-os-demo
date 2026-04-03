@@ -1,122 +1,19 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FSTL COMET OS - Production</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<title>FSTL COMET OS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
-.container { width: 90%; margin: 0 auto; padding: 20px; background: #fff; }
-h1,h2,h3 { text-align: center; }
-label { display: block; margin-top: 10px; font-weight: bold; }
-input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; }
-button { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
-.verification-strength { font-weight: bold; }
-.color-1 { color: red; }
-.color-2 { color: orange; }
-.color-3 { color: gold; }
-.color-4 { color: blue; }
-.color-5 { color: green; }
-.qr-container { text-align: center; margin-top: 20px; }
-</style>
-</head>
-<body><div class="container">
-<h1>FSTL COMET OS</h1>
-<h2>Digital Property Verification Platform</h2>
-<p>Welcome to FSTL COMET OS, your trusted digital guarantor for landed property verification, ensuring security, transparency, and capital creation.</p><h3>Owner Verification Form</h3>
-<form id="verificationForm">
-<label>Full Name of Owner:</label>
-<input type="text" id="ownerName" required><label>NIN / Country ID:</label> <input type="text" id="nin" required>
-
-<label>BVN / Country Bank ID:</label> <input type="text" id="bvn" required>
-
-<label>Residential Address:</label>
-
-<textarea id="resAddress" required></textarea><label>Contact Details (Phone, Email, WhatsApp):</label>
-
-<textarea id="contactDetails" required></textarea><h3>Property Verification</h3>
-<label>Property Address:</label>
-<textarea id="propertyAddress" required></textarea><label>Declared Ownership (e.g., Family, Inherited, Purchased):</label> <select id="ownership" required>
-
-<option value="Family">Family</option>
-<option value="Inherited">Inherited</option>
-<option value="Purchased">Purchased</option>
-</select><button type="button" onclick="generatePDF()">Generate Verification PDF</button>
-
-</form><div class="qr-container">
-<canvas id="qrcode"></canvas>
-</div><script>
-async function generatePDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  // Collect form data
-  const ownerName = document.getElementById('ownerName').value;
-  const nin = document.getElementById('nin').value;
-  const bvn = document.getElementById('bvn').value;
-  const resAddress = document.getElementById('resAddress').value;
-  const contactDetails = document.getElementById('contactDetails').value;
-  const propertyAddress = document.getElementById('propertyAddress').value;
-  const ownership = document.getElementById('ownership').value;
-
-  // Calculate verification strength (simplified example)
-  let strength = 3;
-  if(ownerName && nin && bvn && resAddress && contactDetails && propertyAddress) strength = 5;
-  const strengthColor = ['color-1','color-2','color-3','color-4','color-5'][strength-1];
-
-  // Page 1: Verified Property Record
-  doc.setFontSize(16);
-  doc.text('FSTL COMET OS - Property Verification Record', 10, 20);
-  doc.setFontSize(12);
-  doc.text(`Owner Name: ${ownerName}`, 10, 30);
-  doc.text(`Residential Address: ${resAddress}`, 10, 40);
-  doc.text(`Contact Details: ${contactDetails}`, 10, 50);
-  doc.text(`Property Address: ${propertyAddress}`, 10, 60);
-  doc.text(`Declared Ownership: ${ownership}`, 10, 70);
-  doc.text(`Verification Strength: ${strength} / 5`, 10, 80);
-
-  // Generate QR code reflecting verification strength and suggestions
-  const qrData = JSON.stringify({ownerName, resAddress, propertyAddress, strength});
-  const canvas = document.getElementById('qrcode');
-  await QRCode.toCanvas(canvas, qrData, { width: 128 });
-  const qrImg = canvas.toDataURL('image/png');
-  doc.addImage(qrImg, 'PNG', 150, 20, 40, 40);
-
-  // Page 2: SOP Summary
-  doc.addPage();
-  doc.setFontSize(14);
-  doc.text('FSTL COMET OS - SOP Summary / Workflow Guide', 10, 20);
-  doc.setFontSize(11);
-  doc.text('1. Landing Page: Users familiarise themselves with FSTL COMET OS services.', 10, 30);
-  doc.text('2. Owner Verification: NIN/BVN and contact details are provided.', 10, 40);
-  doc.text('3. Property Verification: Residential vs Property address input.', 10, 50);
-  doc.text('4. Verification Strength calculated (1-5, color-coded).', 10, 60);
-  doc.text('5. QR Code generated reflecting verification details.', 10, 70);
-  doc.text('6. Suggestions provided to improve verification strength.', 10, 80);
-  doc.text('7. PDF generated including SOP summary.', 10, 90);
-  doc.text('8. CTA Actions: Sell / Rent / Mortgage Loan.', 10, 100);
-
-  // Page 3: Legal Notice & Terms
-  doc.addPage();
-  doc.setFontSize(14);
-  doc.text('Legal Notice & Terms and Conditions', 10, 20);
-  doc.setFontSize(11);
-  doc.text('LEGAL NOTICE:', 10, 30);
-  doc.text('FSTL and the FSTL COMET OS provide this service as informational only.', 10, 35);
-  doc.text('It does not guarantee legal enforceability or ownership beyond verified inputs.', 10, 40);
-  doc.text('False or misleading inputs are subject to criminal laws of the verification jurisdiction.', 10, 45);
-  doc.text('Users must ensure compliance with local laws and contractual obligations.', 10, 50);
-
-  doc.text('TERMS AND CONDITIONS:', 10, 60);
-  doc.text('1. Verification is not a legal title or deed.', 10, 65);
-  doc.text('2. Verification relies on user inputs; FSTL disclaims independent validation.', 10, 70);
-  doc.text('3. Verification cannot be used to challenge, transfer, or sell property without legal oversight.', 10, 75);
-  doc.text('4. Outputs are advisory and informational.', 10, 80);
-  doc.text('5. False inputs may result in criminal/civil liability.', 10, 85);
-  doc.text('6. FSTL may invalidate verification records if misuse is detected.', 10, 90);
-
-  doc.save('FSTL_COMET_OS_Verification.pdf');
-}
-</script></div></body>
-</html>
+body{margin:0;font-family:'Inter',sans-serif;background:#f5f7fa;}
+#landing{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#0b4f6c;color:#fff;text-align:center;padding:20px;}
+#app{display:none;padding:20px;max-width:900px;margin:auto;}
+.card{background:#fff;padding:20px;border-radius:10px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+input,textarea,select{width:100%;padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc;}
+button{width:100%;padding:12px;background:#0b4f6c;color:#fff;border:none;border-radius:6px;}
+.verification{padding:5px 10px;border-radius

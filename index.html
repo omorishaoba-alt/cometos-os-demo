@@ -3,35 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FSTL COMET OS Demo – Enhanced</title>
+<title>FSTL COMET OS Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: 'Segoe UI', sans-serif; background:#f4f6f8; color:#1c1e21; margin:0; padding:0; }
-  header { background:#0b4f6c; color:#fff; padding:1rem 2rem; text-align:center; }
-  h1 { margin:0; font-size:1.8rem; }
-  main { padding:2rem; max-width:900px; margin:auto; }
-  form { background:#fff; padding:2rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:2rem; }
-  label { display:block; font-weight:600; margin-bottom:0.3rem; }
-  input, select, button, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem; border-radius:8px; border:1px solid #ccc; font-size:0.95rem; }
-  button { background:#0b4f6c; color:#fff; border:none; cursor:pointer; font-weight:600; transition:background 0.2s; }
-  button:hover { background:#093d53; }
-  .section-title { font-size:1.3rem; margin-bottom:1rem; font-weight:700; color:#0b4f6c; }
-  .qr-box { text-align:center; margin-top:1rem; }
-  .dashboard { background:#fff; padding:1.5rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:2rem; }
-  .dashboard h3 { margin-top:0; color:#0b4f6c; }
-  .dashboard p { margin:0.4rem 0; }
-  .next-steps { background:#e0f2f1; padding:1rem; border-radius:12px; }
-  .next-steps ul { margin:0; padding-left:1.2rem; }
-  .next-steps li { margin-bottom:0.5rem; }
-  footer { text-align:center; padding:1rem; background:#0b4f6c; color:#fff; }
+/* Reset + basic styling */
+body { margin:0; font-family: 'Roboto', sans-serif; background:#f4f6f8; color:#1c1e21; }
+header, footer { background:#0b4f6c; color:#fff; text-align:center; padding:1rem 2rem; }
+h1, h2, h3 { margin:0; }
+main { padding:2rem; max-width:1000px; margin:auto; }
+button { cursor:pointer; border:none; border-radius:8px; padding:0.8rem 1rem; font-weight:600; background:#0b4f6c; color:#fff; transition:0.2s; }
+button:hover { background:#093d53; }
+form { background:#fff; padding:2rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:2rem; }
+label { display:block; font-weight:500; margin-bottom:0.3rem; }
+input, select, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem; border-radius:8px; border:1px solid #ccc; font-size:0.95rem; }
+.section-title { font-size:1.3rem; margin-bottom:1rem; font-weight:700; color:#0b4f6c; }
+.qr-box { text-align:center; margin-top:1rem; }
+.dashboard { background:#fff; padding:1.5rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:2rem; }
+.next-steps { background:#e0f2f1; padding:1rem; border-radius:12px; }
+.next-steps ul { margin:0; padding-left:1.2rem; }
+.next-steps li { margin-bottom:0.5rem; }
+
+/* Landing Page */
+.hero { text-align:center; padding:4rem 2rem; background:#e1f5fe; border-radius:12px; margin-bottom:2rem; }
+.hero h1 { font-size:2rem; color:#0b4f6c; }
+.hero p { font-size:1rem; margin-top:1rem; }
+.get-started { margin-top:2rem; }
 </style>
 </head>
 <body>
+
+<!-- Header -->
 <header>
-  <h1>FSTL COMET OS – Digital Property Verification Demo</h1>
+  <h1>FSTL COMET OS Demo</h1>
 </header>
 
 <main>
-  <!-- OWNER VERIFICATION -->
+  <!-- LANDING / HERO SECTION -->
+  <section class="hero">
+    <h1>Scan. Verify. Participate.</h1>
+    <p>FSTL COMET OS is your digital property verification system. Create a unique PVID, receive a trust score (CRL), and share your QR for safe property transactions.</p>
+    <p>Secure your property, simplify verification, and increase market liquidity.</p>
+    <button class="get-started" onclick="document.getElementById('ownerForm').scrollIntoView({behavior:'smooth'})">Get Started</button>
+  </section>
+
+  <!-- OWNER VERIFICATION FORM -->
   <form id="ownerForm">
     <div class="section-title">Owner Verification</div>
     <label for="ownerCountry">Select Country</label>
@@ -74,7 +89,7 @@
     <p><strong>Property:</strong> <span id="dashProperty"></span></p>
     <p><strong>CRL Level:</strong> <span id="dashCRL"></span></p>
     <div class="qr-box" id="qrBox"></div>
-    <button type="button" onclick="generatePDF()">Download PDF Report</button>
+    <button type="button" onclick="generatePDF()">Download Verification PDF</button>
   </div>
 
   <!-- TENANT / BUYER VERIFICATION -->
@@ -111,74 +126,80 @@
       <li>Secure the transaction with FSTL Title Insurance</li>
     </ul>
   </div>
+
 </main>
 
+<!-- Footer -->
 <footer>
   FSTL COMET OS Demo &copy; 2026
 </footer>
 
-<!-- JS Logic -->
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-  function generatePVID(name, property) {
-    return 'PVID-' + name.replace(/\s/g,'').toUpperCase() + '-' + Math.floor(Math.random()*90000+10000);
+// Helpers
+function generatePVID(name, property) {
+  return 'PVID-' + name.replace(/\s/g,'').toUpperCase() + '-' + Math.floor(Math.random()*90000+10000);
+}
+function getCRL() { return Math.floor(Math.random()*3+3); } // 3-5 demo scale
+
+// Owner Verification
+function verifyOwner() {
+  const name=document.getElementById('ownerName').value.trim();
+  const nin=document.getElementById('ownerNIN').value.trim();
+  const bvn=document.getElementById('ownerBVN').value.trim();
+  const property=document.getElementById('propertyDesc').value.trim();
+  if(!name||!nin||!bvn||!property){alert('Please fill all owner fields.');return;}
+
+  const pvid=generatePVID(name, property);
+  const crl=getCRL();
+
+  document.getElementById('dashOwner').innerText=name;
+  document.getElementById('dashPVID').innerText=pvid;
+  document.getElementById('dashProperty').innerText=property;
+  document.getElementById('dashCRL').innerText=crl;
+  document.getElementById('dashboard').style.display='block';
+
+  QRCode.toCanvas(document.getElementById('qrBox'), `Owner:${name}\nPVID:${pvid}\nProperty:${property}\nCRL:${crl}`, function(err){if(err)console.error(err);});
+  document.getElementById('userForm').style.display='block';
+}
+
+// Tenant / Buyer Verification
+function verifyUser() {
+  const userName=document.getElementById('userName').value.trim();
+  const userNIN=document.getElementById('userNIN').value.trim();
+  const userBVN=document.getElementById('userBVN').value.trim();
+  if(!userName||!userNIN||!userBVN){alert('Please fill all tenant/buyer fields.');return;}
+  alert(`Tenant/Buyer ${userName} verified successfully!`);
+  document.getElementById('nextSteps').style.display='block';
+}
+
+// PDF Generation
+function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc=new jsPDF();
+  const owner=document.getElementById('dashOwner').innerText;
+  const pvid=document.getElementById('dashPVID').innerText;
+  const property=document.getElementById('dashProperty').innerText;
+  const crl=document.getElementById('dashCRL').innerText;
+
+  doc.setFontSize(16);
+  doc.text('FSTL COMET OS Verification Report',20,20);
+  doc.setFontSize(12);
+  doc.text(`Owner: ${owner}`,20,40);
+  doc.text(`Property: ${property}`,20,50);
+  doc.text(`PVID: ${pvid}`,20,60);
+  doc.text(`CRL Level: ${crl}`,20,70);
+  doc.text('This PDF confirms a traceable property verification with digital QR wallet.',20,90);
+
+  const qrCanvas=document.querySelector('#qrBox canvas');
+  if(qrCanvas){
+    const imgData=qrCanvas.toDataURL('image/png');
+    doc.addImage(imgData,'PNG',20,100,60,60);
   }
-
-  function getCRL() {
-    return Math.floor(Math.random()*3+3); // 3-5 for demo
-  }
-
-  function verifyOwner() {
-    const name = document.getElementById('ownerName').value.trim();
-    const nin = document.getElementById('ownerNIN').value.trim();
-    const bvn = document.getElementById('ownerBVN').value.trim();
-    const property = document.getElementById('propertyDesc').value.trim();
-    if(!name || !nin || !bvn || !property) { alert('Please fill all owner fields.'); return; }
-
-    const pvid = generatePVID(name, property);
-    const crl = getCRL();
-
-    document.getElementById('dashOwner').innerText = name;
-    document.getElementById('dashPVID').innerText = pvid;
-    document.getElementById('dashProperty').innerText = property;
-    document.getElementById('dashCRL').innerText = crl;
-    document.getElementById('dashboard').style.display = 'block';
-
-    QRCode.toCanvas(document.getElementById('qrBox'), `Owner:${name},PVID:${pvid},Property:${property},CRL:${crl}`, function (error) { if(error) console.error(error); });
-
-    document.getElementById('userForm').style.display = 'block';
-  }
-
-  function verifyUser() {
-    const userName = document.getElementById('userName').value.trim();
-    const userNIN = document.getElementById('userNIN').value.trim();
-    const userBVN = document.getElementById('userBVN').value.trim();
-    if(!userName || !userNIN || !userBVN) { alert('Please fill all tenant/buyer fields.'); return; }
-
-    alert(`Tenant/Buyer ${userName} verified successfully!`);
-    document.getElementById('nextSteps').style.display = 'block';
-  }
-
-  function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const owner = document.getElementById('dashOwner').innerText;
-    const pvid = document.getElementById('dashPVID').innerText;
-    const property = document.getElementById('dashProperty').innerText;
-    const crl = document.getElementById('dashCRL').innerText;
-
-    doc.setFontSize(14);
-    doc.text('FSTL COMET OS Verification Report', 20, 20);
-    doc.setFontSize(11);
-    doc.text(`Owner: ${owner}`, 20, 40);
-    doc.text(`Property: ${property}`, 20, 50);
-    doc.text(`PVID: ${pvid}`, 20, 60);
-    doc.text(`CRL Level: ${crl}`, 20, 70);
-    doc.text('This report confirms a traceable and accountable property claim.', 20, 90);
-
-    doc.save(`COMETOS_Verification_${pvid}.pdf`);
-  }
+  doc.save(`COMETOS_Verification_${pvid}.pdf`);
+}
 </script>
 </body>
 </html>

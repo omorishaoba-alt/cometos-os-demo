@@ -39,7 +39,7 @@ button { width:100%; padding:12px; background:#0b4f6c; color:#fff; border:none; 
 <!-- APP -->
 <div id="app">
 
-<!-- OWNER FORM -->
+<!-- OWNER/AGENT FORM -->
 <div class="card">
 <h3>Owner / Agent Information</h3>
 <input id="name" placeholder="Full Name (as official ID)">
@@ -47,13 +47,8 @@ button { width:100%; padding:12px; background:#0b4f6c; color:#fff; border:none; 
 <input id="phone" placeholder="Phone Number">
 <input id="whatsapp" placeholder="WhatsApp Number">
 <input id="email" placeholder="Email Address">
-<select id="idType">
-<option value="">Select ID Type</option>
-<option>NIN</option>
-<option>BVN</option>
-<option>Other Country Equivalent</option>
-</select>
-<input id="idNumber" placeholder="ID Number">
+<input id="nin" placeholder="NIN Number">
+<input id="bvn" placeholder="BVN Number">
 </div>
 
 <!-- PROPERTY FORM -->
@@ -109,18 +104,15 @@ function start(){
 }
 
 // CRL logic
-function computeCRL(name, resAddress, propAddress, claim, phone, whatsapp, email, idType, idNumber){
+function computeCRL(name, resAddress, propAddress, claim, phone, whatsapp, email, nin, bvn){
   let score = 1;
   if(name && resAddress && propAddress) score = 2;
   if(score==2 && claim) score =3;
   if(score==3 && phone && whatsapp && email) score=4;
-  if(score==4 && idType && idNumber) score=5;
+  if(score==4 && nin && bvn) score=5;
   return score;
 }
 function crlText(level){ return ["","Very Weak","Weak","Moderate","Strong","Very Strong"][level]; }
-function crlAdvice(level){
-  return ["","Provide complete identity and property details.","Include residential and property addresses.","Clarify ownership claim.","All contacts recorded, ready to transact.","Excellent. Your property is fully verified and secure."][level];
-}
 
 // Verification
 function verify(){
@@ -132,16 +124,16 @@ function verify(){
   const phone = document.getElementById("phone").value.trim();
   const whatsapp = document.getElementById("whatsapp").value.trim();
   const email = document.getElementById("email").value.trim();
-  const idType = document.getElementById("idType").value;
-  const idNumber = document.getElementById("idNumber").value.trim();
+  const nin = document.getElementById("nin").value.trim();
+  const bvn = document.getElementById("bvn").value.trim();
 
   if(!name || !resAddress || !propAddress || !property || !claim){
     alert("Please complete all required fields.");
     return;
   }
 
-  const pvid = "PVID-" + Math.floor(Math.random()*100000);
-  const crlLevel = computeCRL(name,resAddress,propAddress,claim,phone,whatsapp,email,idType,idNumber);
+  const pvid = "PVID-" + Math.floor(Math.random()*1000000);
+  const crlLevel = computeCRL(name,resAddress,propAddress,claim,phone,whatsapp,email,nin,bvn);
   const crl = crlText(crlLevel);
 
   // Populate dashboard
@@ -154,7 +146,7 @@ function verify(){
 
   document.getElementById("dashboard").style.display="block";
 
-  // Generate QR
+  // Generate final QR for PDF
   const qrData = `PVID:${pvid}\nName:${name}\nProperty:${property}\nVerification Strength:${crl}`;
   QRCode.toCanvas(document.getElementById("qr"), qrData);
 }
@@ -164,9 +156,9 @@ function ctaAction(type){
   alert(`CTA Selected: ${type}\nYour property is verified. FSTL COMET OS acts as your digital guarantor for ${type}.`);
 }
 
-// PDF
+// PDF generation
 function downloadPDF(){
-  const canvas = document.querySelector("#qr canvas");
+  const canvas = document.getElementById("qr");
   if(!canvas){ alert("Generate QR first"); return; }
 
   const { jsPDF } = window.jspdf;

@@ -6,7 +6,6 @@
 <title>FSTL COMET OS Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* Reset + basic styling */
 body { margin:0; font-family: 'Roboto', sans-serif; background:#f4f6f8; color:#1c1e21; }
 header, footer { background:#0b4f6c; color:#fff; text-align:center; padding:1rem 2rem; }
 h1, h2, h3 { margin:0; }
@@ -22,7 +21,6 @@ input, select, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem;
 .next-steps { background:#e0f2f1; padding:1rem; border-radius:12px; }
 .next-steps ul { margin:0; padding-left:1.2rem; }
 .next-steps li { margin-bottom:0.5rem; }
-
 /* Landing Page */
 .hero { text-align:center; padding:4rem 2rem; background:#e1f5fe; border-radius:12px; margin-bottom:2rem; }
 .hero h1 { font-size:2rem; color:#0b4f6c; }
@@ -38,94 +36,100 @@ input, select, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem;
 </header>
 
 <main>
-  <!-- LANDING / HERO SECTION -->
-  <section class="hero">
-    <h1>Scan. Verify. Participate.</h1>
-    <p>FSTL COMET OS is your digital property verification system. Create a unique PVID, receive a trust score (CRL), and share your QR for safe property transactions.</p>
-    <p>Secure your property, simplify verification, and increase market liquidity.</p>
-    <button class="get-started" onclick="document.getElementById('ownerForm').scrollIntoView({behavior:'smooth'})">Get Started</button>
-  </section>
 
-  <!-- OWNER VERIFICATION FORM -->
-  <form id="ownerForm">
-    <div class="section-title">Owner Verification</div>
-    <label for="ownerCountry">Select Country</label>
-    <select id="ownerCountry">
-      <option value="Nigeria">Nigeria</option>
-      <option value="USA">USA</option>
-      <option value="UK">UK</option>
-      <option value="Ghana">Ghana</option>
-      <option value="Canada">Canada</option>
-    </select>
+<!-- LANDING / HERO SECTION -->
+<section class="hero">
+  <h1>Welcome to FSTL COMET OS</h1>
+  <p>Your digital property verification system.</p>
+  <p>Create a unique <strong>PVID</strong> (Property Verification ID), receive a trust score <strong>CRL</strong>, and share a QR code to transact safely.</p>
+  <ul style="text-align:left; display:inline-block; margin-top:1rem;">
+    <li><strong>Step 1:</strong> Verify yourself as the property owner</li>
+    <li><strong>Step 2:</strong> Generate PVID & CRL</li>
+    <li><strong>Step 3:</strong> Share QR & PDF for secure transactions</li>
+  </ul>
+  <button class="get-started" onclick="document.getElementById('ownerForm').scrollIntoView({behavior:'smooth'})">Get Started</button>
+</section>
 
-    <label for="ownerName">Owner Name</label>
-    <input type="text" id="ownerName" placeholder="Full Name" required>
+<!-- OWNER VERIFICATION FORM -->
+<form id="ownerForm">
+  <div class="section-title">Owner Verification</div>
+  <label for="ownerCountry">Select Country</label>
+  <select id="ownerCountry">
+    <option value="Nigeria">Nigeria</option>
+    <option value="USA">USA</option>
+    <option value="UK">UK</option>
+    <option value="Ghana">Ghana</option>
+    <option value="Canada">Canada</option>
+  </select>
 
-    <label for="ownerNIN">National ID / Equivalent</label>
-    <input type="text" id="ownerNIN" placeholder="National ID" required>
+  <label for="ownerName">Owner Name</label>
+  <input type="text" id="ownerName" placeholder="Full Name" required>
 
-    <label for="ownerBVN">Financial ID / Equivalent</label>
-    <input type="text" id="ownerBVN" placeholder="Bank Verification Number" required>
+  <label for="ownerNIN">National ID / Equivalent</label>
+  <input type="text" id="ownerNIN" placeholder="National ID" required>
 
-    <label for="propertyDesc">Property Description / Address</label>
-    <textarea id="propertyDesc" placeholder="Eg: 3-bedroom flat, Lekki Phase 1" required></textarea>
+  <label for="ownerBVN">Financial ID / Equivalent</label>
+  <input type="text" id="ownerBVN" placeholder="Bank Verification Number" required>
 
-    <label for="propertyType">Property Type</label>
-    <select id="propertyType" required>
-      <option value="">Select Type</option>
-      <option value="sale">For Sale</option>
-      <option value="rental">For Rent</option>
-      <option value="family">Family / Personal</option>
-    </select>
+  <label for="propertyDesc">Property Description / Address</label>
+  <textarea id="propertyDesc" placeholder="Eg: 3-bedroom flat, Lekki Phase 1" required></textarea>
 
-    <button type="button" onclick="verifyOwner()">Verify Owner & Generate PVID</button>
-  </form>
+  <label for="propertyType">Property Type</label>
+  <select id="propertyType" required>
+    <option value="">Select Type</option>
+    <option value="sale">For Sale</option>
+    <option value="rental">For Rent</option>
+    <option value="family">Family / Personal</option>
+  </select>
 
-  <!-- DASHBOARD -->
-  <div class="dashboard" id="dashboard" style="display:none;">
-    <h3>COMET OS Wallet & Verification</h3>
-    <p><strong>Owner:</strong> <span id="dashOwner"></span></p>
-    <p><strong>PVID:</strong> <span id="dashPVID"></span></p>
-    <p><strong>Property:</strong> <span id="dashProperty"></span></p>
-    <p><strong>CRL Level:</strong> <span id="dashCRL"></span></p>
-    <div class="qr-box" id="qrBox"></div>
-    <button type="button" onclick="generatePDF()">Download Verification PDF</button>
-  </div>
+  <button type="button" onclick="verifyOwner()">Verify Owner & Generate PVID</button>
+</form>
 
-  <!-- TENANT / BUYER VERIFICATION -->
-  <form id="userForm" style="display:none;">
-    <div class="section-title">Tenant / Buyer Verification</div>
-    <label for="userCountry">Select Country</label>
-    <select id="userCountry">
-      <option value="Nigeria">Nigeria</option>
-      <option value="USA">USA</option>
-      <option value="UK">UK</option>
-      <option value="Ghana">Ghana</option>
-      <option value="Canada">Canada</option>
-    </select>
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard" style="display:none;">
+  <h3>COMET OS Wallet & Verification</h3>
+  <p><strong>Owner:</strong> <span id="dashOwner"></span></p>
+  <p><strong>PVID:</strong> <span id="dashPVID"></span></p>
+  <p><strong>Property:</strong> <span id="dashProperty"></span></p>
+  <p><strong>CRL Level:</strong> <span id="dashCRL"></span></p>
+  <div class="qr-box" id="qrBox"></div>
+  <button type="button" onclick="generatePDF()">Download Verification PDF</button>
+</div>
 
-    <label for="userName">Your Name</label>
-    <input type="text" id="userName" placeholder="Full Name" required>
+<!-- TENANT / BUYER VERIFICATION -->
+<form id="userForm" style="display:none;">
+  <div class="section-title">Tenant / Buyer Verification</div>
+  <label for="userCountry">Select Country</label>
+  <select id="userCountry">
+    <option value="Nigeria">Nigeria</option>
+    <option value="USA">USA</option>
+    <option value="UK">UK</option>
+    <option value="Ghana">Ghana</option>
+    <option value="Canada">Canada</option>
+  </select>
 
-    <label for="userNIN">National ID / Equivalent</label>
-    <input type="text" id="userNIN" placeholder="National ID" required>
+  <label for="userName">Your Name</label>
+  <input type="text" id="userName" placeholder="Full Name" required>
 
-    <label for="userBVN">Financial ID / Equivalent</label>
-    <input type="text" id="userBVN" placeholder="Bank Verification Number" required>
+  <label for="userNIN">National ID / Equivalent</label>
+  <input type="text" id="userNIN" placeholder="National ID" required>
 
-    <button type="button" onclick="verifyUser()">Verify & Confirm Participation</button>
-  </form>
+  <label for="userBVN">Financial ID / Equivalent</label>
+  <input type="text" id="userBVN" placeholder="Bank Verification Number" required>
 
-  <!-- NEXT STEPS -->
-  <div class="next-steps" id="nextSteps" style="display:none;">
-    <div class="section-title">Next Steps After Verification</div>
-    <ul>
-      <li>Share your PVID QR with interested parties</li>
-      <li>Engage an Agent for listing or negotiation</li>
-      <li>Engage a Lawyer for agreements and contracts</li>
-      <li>Secure the transaction with FSTL Title Insurance</li>
-    </ul>
-  </div>
+  <button type="button" onclick="verifyUser()">Verify & Confirm Participation</button>
+</form>
+
+<!-- NEXT STEPS -->
+<div class="next-steps" id="nextSteps" style="display:none;">
+  <div class="section-title">Next Steps After Verification</div>
+  <ul>
+    <li>Share your PVID QR with interested parties</li>
+    <li>Engage an Agent for listing or negotiation</li>
+    <li>Engage a Lawyer for agreements and contracts</li>
+    <li>Secure the transaction with FSTL Title Insurance</li>
+  </ul>
+</div>
 
 </main>
 

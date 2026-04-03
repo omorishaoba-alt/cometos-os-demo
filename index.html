@@ -3,255 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FSTL COMET OS - Collateral & PVID Verification</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<title>FSTL COMET OS Demo – Enhanced</title>
 <style>
-body { font-family: Arial; background:#f5f7fb; margin:0; }
-header { background:#0a2a66; color:#fff; padding:15px; text-align:center; }
-.container { max-width:900px; margin:20px auto; padding:15px; }
-.card { background:#fff; padding:15px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-input,select { width:100%; padding:10px; margin:6px 0; border:1px solid #ddd; border-radius:6px; font-size:14px; }
-button { width:100%; padding:12px; background:#0a2a66; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:16px; font-weight:bold; margin-top:5px; }
-.result { text-align:center; padding:20px; }
-.score { font-size:28px; font-weight:bold; }
-.small { font-size:13px; color:#555; }
-.bar { height:8px; background:#ddd; border-radius:5px; margin:5px 0; }
-.fill { height:8px; background:#0a2a66; border-radius:5px; }
-#qrcode { margin-top:15px; }
-.pending { background:#fff3cd; border:1px solid #ffeeba; padding:10px; border-radius:6px; margin-top:10px; color:#856404; }
-.login-section { display:flex; justify-content:space-between; gap:10px; margin-bottom:10px; }
-.login-section input { flex:1; }
-.property-card { margin-top:10px; border:1px solid #ddd; padding:10px; border-radius:6px; }
-.add-property { background:#04aa6d; margin-top:5px; }
-.dashboard { display:flex; flex-direction:column; gap:10px; margin-top:15px; }
-.dashboard-item { padding:10px; border-radius:6px; background:#eef1f7; }
-.trade-ready { background:#0a7a44; color:#fff; margin-top:5px; }
-.stamped { background:#ff9800; color:#fff; margin-top:5px; }
+  body { font-family: 'Segoe UI', sans-serif; background:#f4f6f8; color:#1c1e21; margin:0; padding:0; }
+  header { background:#0b4f6c; color:#fff; padding:1rem 2rem; text-align:center; }
+  h1 { margin:0; font-size:1.8rem; }
+  main { padding:2rem; max-width:900px; margin:auto; }
+  form { background:#fff; padding:2rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:2rem; }
+  label { display:block; font-weight:600; margin-bottom:0.3rem; }
+  input, select, button, textarea { width:100%; padding:0.6rem 0.8rem; margin-bottom:1rem; border-radius:8px; border:1px solid #ccc; font-size:0.95rem; }
+  button { background:#0b4f6c; color:#fff; border:none; cursor:pointer; font-weight:600; transition:background 0.2s; }
+  button:hover { background:#093d53; }
+  .section-title { font-size:1.3rem; margin-bottom:1rem; font-weight:700; color:#0b4f6c; }
+  .qr-box { text-align:center; margin-top:1rem; }
+  .dashboard { background:#fff; padding:1.5rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:2rem; }
+  .dashboard h3 { margin-top:0; color:#0b4f6c; }
+  .dashboard p { margin:0.4rem 0; }
+  .next-steps { background:#e0f2f1; padding:1rem; border-radius:12px; }
+  .next-steps ul { margin:0; padding-left:1.2rem; }
+  .next-steps li { margin-bottom:0.5rem; }
+  footer { text-align:center; padding:1rem; background:#0b4f6c; color:#fff; }
 </style>
 </head>
 <body>
-
 <header>
-<h2>FSTL COMET OS</h2>
-<p>Verification-Only Collateral Engine + PVID + Pending Notes + Trade Dashboard</p>
+  <h1>FSTL COMET OS – Digital Property Verification Demo</h1>
 </header>
 
-<div class="container">
-
-<!-- Agent Login -->
-<div class="card">
-<h4>Agent Login</h4>
-<div class="login-section">
-<input id="agentLoginID" placeholder="Agent ID">
-<input id="agentLoginPassword" placeholder="Password" type="password">
-<button onclick="agentLogin()">Login</button>
-</div>
-<div id="agentLoginMsg" class="small" style="color:red;"></div>
-</div>
-
-<!-- Owner Section -->
-<div class="card">
-<h4>1. Owner Identity</h4>
-<select id="ownerCountry" onchange="updateOwnerIDs()">
-<option value="NG">Nigeria</option>
-<option value="US">USA</option>
-<option value="UK">UK</option>
-<option value="CA">Canada</option>
-<option value="DE">Germany</option>
-</select>
-<div id="ownerIDFields">
-  <input id="ownerName" placeholder="Full Name">
-  <input id="ownerID" placeholder="NIN / SSN / SIN / Steuer-ID">
-  <input id="ownerBank" placeholder="BVN / Bank ID">
-  <input id="ownerResidential" placeholder="Residential Address">
-</div>
-</div>
-
-<!-- Property Section -->
-<div class="card">
-<h4>2. Property Details</h4>
-<div id="propertyList"></div>
-<button class="add-property" onclick="addProperty()">Add Property</button>
-</div>
-
-<!-- CRL Assessment -->
-<button onclick="runCRL()">Assess Collateral & Generate PVID</button>
-
-<div id="result" class="card result" style="display:none;"></div>
-<div id="qrcode" class="card result" style="display:none;"></div>
-<div id="pendingInfo" class="card pending" style="display:none;"></div>
-
-<!-- Institutional Dashboard -->
-<div class="card dashboard">
-<h4>Institutional CRL Dashboard</h4>
-<div id="dashboardList"></div>
-</div>
-
-</div>
-
-<script>
-let properties = [];
-let ownerPVID = null;
-
-// Agent login simulation
-function agentLogin(){
-  const id = document.getElementById("agentLoginID").value;
-  const pw = document.getElementById("agentLoginPassword").value;
-  const msg = document.getElementById("agentLoginMsg");
-  const demoAgents = [{id:"AGENT001", pw:"pass123"}, {id:"AGENT002", pw:"demo456"}];
-  if(demoAgents.some(a=>a.id===id && a.pw===pw)){
-    msg.style.color="green";
-    msg.innerText="Login successful. Ready to verify properties.";
-  } else {
-    msg.style.color="red";
-    msg.innerText="Invalid Agent ID or Password.";
-  }
-}
-
-// Dynamic ID fields for global participants
-function updateOwnerIDs(){
-  const c = document.getElementById("ownerCountry").value;
-  const f = document.getElementById("ownerIDFields");
-  if(c=="NG"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
-    <input id="ownerID" placeholder="NIN">
-    <input id="ownerBank" placeholder="BVN">
-    <input id="ownerResidential" placeholder="Residential Address">`; }
-  else if(c=="US"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
-    <input id="ownerID" placeholder="SSN">
-    <input id="ownerBank" placeholder="Routing Number">
-    <input id="ownerResidential" placeholder="Residential Address">`; }
-  else if(c=="UK"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
-    <input id="ownerID" placeholder="NINo">
-    <input id="ownerBank" placeholder="Sort Code">
-    <input id="ownerResidential" placeholder="Residential Address">`; }
-  else if(c=="CA"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
-    <input id="ownerID" placeholder="SIN">
-    <input id="ownerBank" placeholder="Bank Account Number">
-    <input id="ownerResidential" placeholder="Residential Address">`; }
-  else if(c=="DE"){ f.innerHTML = `<input id="ownerName" placeholder="Full Name">
-    <input id="ownerID" placeholder="Steuer-ID">
-    <input id="ownerBank" placeholder="IBAN">
-    <input id="ownerResidential" placeholder="Residential Address">`; }
-}
-
-// Add property
-function addProperty(){
-  const idx = properties.length;
-  const container = document.getElementById("propertyList");
-  const card = document.createElement("div");
-  card.className="property-card";
-  card.id="propertyCard"+idx;
-  card.innerHTML = `
-    <input id="propertyAddress${idx}" placeholder="Property Address">
-    <select id="propertyType${idx}">
-      <option>Residential</option>
-      <option>Commercial</option>
-      <option>Land</option>
+<main>
+  <!-- OWNER VERIFICATION -->
+  <form id="ownerForm">
+    <div class="section-title">Owner Verification</div>
+    <label for="ownerCountry">Select Country</label>
+    <select id="ownerCountry">
+      <option value="Nigeria">Nigeria</option>
+      <option value="USA">USA</option>
+      <option value="UK">UK</option>
+      <option value="Ghana">Ghana</option>
+      <option value="Canada">Canada</option>
     </select>
-    <input id="propertyID${idx}" placeholder="Property ID Number / Doc Ref">
-    <button onclick="stampProperty(${idx})" class="stamped">Stamp Approval</button>
-    <button onclick="toggleTrade(${idx})" class="trade-ready">Trade Ready</button>
-  `;
-  container.appendChild(card);
-  properties.push({idx:idx, stamped:false, tradeReady:false, pvid:generatePVID()});
-}
 
-// Generate unique PVID
-function generatePVID() { return 'PVID-' + Math.random().toString(36).substr(2,9).toUpperCase(); }
+    <label for="ownerName">Owner Name</label>
+    <input type="text" id="ownerName" placeholder="Full Name" required>
 
-// Stamp approval
-function stampProperty(idx){
-  properties[idx].stamped = true;
-  document.getElementById("propertyCard"+idx).querySelector(".stamped").innerText="Stamped ✓";
-  runCRL();
-}
+    <label for="ownerNIN">National ID / Equivalent</label>
+    <input type="text" id="ownerNIN" placeholder="National ID" required>
 
-// Toggle trade-ready
-function toggleTrade(idx){
-  properties[idx].tradeReady = !properties[idx].tradeReady;
-  const btn = document.getElementById("propertyCard"+idx).querySelector(".trade-ready");
-  btn.innerText = properties[idx].tradeReady ? "Trade Ready ✓" : "Trade Ready";
-  runCRL();
-}
+    <label for="ownerBVN">Financial ID / Equivalent</label>
+    <input type="text" id="ownerBVN" placeholder="Bank Verification Number" required>
 
-// CRL engine
-function runCRL(){
-let score = 0;
-let pending = [];
+    <label for="propertyDesc">Property Description / Address</label>
+    <textarea id="propertyDesc" placeholder="Eg: 3-bedroom flat, Lekki Phase 1" required></textarea>
 
-// Generate owner PVID once
-if(!ownerPVID) ownerPVID = generatePVID();
+    <label for="propertyType">Property Type</label>
+    <select id="propertyType" required>
+      <option value="">Select Type</option>
+      <option value="sale">For Sale</option>
+      <option value="rental">For Rent</option>
+      <option value="family">Family / Personal</option>
+    </select>
 
-const ownerName = document.getElementById("ownerName").value;
-const ownerID = document.getElementById("ownerID").value;
-const ownerBank = document.getElementById("ownerBank").value;
-const ownerRes = document.getElementById("ownerResidential").value;
-let identityScore = (ownerName && ownerID && ownerBank)?25:10;
-if(identityScore<25) pending.push("Owner identity incomplete (ID numbers required).");
-score += identityScore;
+    <button type="button" onclick="verifyOwner()">Verify Owner & Generate PVID</button>
+  </form>
 
-// Property scoring
-let totalPropScore = 0;
-let propertyData=[];
-properties.forEach(obj=>{
-  const idx = obj.idx;
-  const addr = document.getElementById("propertyAddress"+idx).value;
-  const type = document.getElementById("propertyType"+idx).value;
-  const pid = document.getElementById("propertyID"+idx).value;
-  let pscore = (addr?15:5) + (pid?15:5) + (obj.stamped?20:5);
-  if(!addr || !pid) pending.push(`Property ${idx+1} missing address or ID number.`);
-  if(!obj.stamped) pending.push(`Property ${idx+1} not stamped.`);
-  totalPropScore += pscore;
-  propertyData.push({
-    Address: addr, Type: type, PropertyID: pid, PVID: obj.pvid, Stamped: obj.stamped, TradeReady: obj.tradeReady
-  });
-});
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard" style="display:none;">
+    <h3>COMET OS Wallet & Verification</h3>
+    <p><strong>Owner:</strong> <span id="dashOwner"></span></p>
+    <p><strong>PVID:</strong> <span id="dashPVID"></span></p>
+    <p><strong>Property:</strong> <span id="dashProperty"></span></p>
+    <p><strong>CRL Level:</strong> <span id="dashCRL"></span></p>
+    <div class="qr-box" id="qrBox"></div>
+    <button type="button" onclick="generatePDF()">Download PDF Report</button>
+  </div>
 
-score += totalPropScore / (properties.length || 1);
+  <!-- TENANT / BUYER VERIFICATION -->
+  <form id="userForm" style="display:none;">
+    <div class="section-title">Tenant / Buyer Verification</div>
+    <label for="userCountry">Select Country</label>
+    <select id="userCountry">
+      <option value="Nigeria">Nigeria</option>
+      <option value="USA">USA</option>
+      <option value="UK">UK</option>
+      <option value="Ghana">Ghana</option>
+      <option value="Canada">Canada</option>
+    </select>
 
-// CRL calculation
-let crl = Math.ceil(score / 50);
-let status = crl<=2?"Weak":crl==3?"Tradable":crl==4?"Finance-Ready":"Institutional Grade";
+    <label for="userName">Your Name</label>
+    <input type="text" id="userName" placeholder="Full Name" required>
 
-// Display result
-document.getElementById("result").style.display="block";
-document.getElementById("result").innerHTML = `
-<div><strong>Owner PVID:</strong> ${ownerPVID}</div>
-<div class="score">CRL ${crl}</div>
-<div>Status: ${status}</div>`;
+    <label for="userNIN">National ID / Equivalent</label>
+    <input type="text" id="userNIN" placeholder="National ID" required>
 
-// Pending Verification
-if(pending.length>0){
-  document.getElementById("pendingInfo").style.display="block";
-  document.getElementById("pendingInfo").innerHTML = `
-  <strong>Pending Verification Notes:</strong><br>
-  <ul>${pending.map(x=>`<li>${x}</li>`).join('')}</ul>
-  <span>Improving these ID signals increases trust and market liquidity.</span>`;
-}else{
-  document.getElementById("pendingInfo").style.display="none";
-}
+    <label for="userBVN">Financial ID / Equivalent</label>
+    <input type="text" id="userBVN" placeholder="Bank Verification Number" required>
 
-// Generate QR
-document.getElementById("qrcode").style.display="block";
-QRCode.toCanvas(document.getElementById('qrcode'), JSON.stringify({
-  Owner: {Name:ownerName, ID:ownerID, BankID:ownerBank, Residential:ownerRes, PVID:ownerPVID},
-  CRL: crl,
-  Status: status,
-  PendingNotes: pending,
-  Properties: propertyData
-}), function (error) { if(error) console.error(error); });
+    <button type="button" onclick="verifyUser()">Verify & Confirm Participation</button>
+  </form>
 
-// Update Dashboard
-const dash = document.getElementById("dashboardList");
-dash.innerHTML = "";
-propertyData.forEach((p,i)=>{
-  let color = p.TradeReady?"#0a7a44":p.Stamped?"#ff9800":"#ddd";
-  dash.innerHTML += `<div class="dashboard-item" style="background:${color};">
-    Property ${i+1}: ${p.Address || "N/A"} | PVID: ${p.PVID} | Stamped: ${p.Stamped} | Trade Ready: ${p.TradeReady}
-  </div>`;
-});
-}
+  <!-- NEXT STEPS -->
+  <div class="next-steps" id="nextSteps" style="display:none;">
+    <div class="section-title">Next Steps After Verification</div>
+    <ul>
+      <li>Share your PVID QR with interested parties</li>
+      <li>Engage an Agent for listing or negotiation</li>
+      <li>Engage a Lawyer for agreements and contracts</li>
+      <li>Secure the transaction with FSTL Title Insurance</li>
+    </ul>
+  </div>
+</main>
+
+<footer>
+  FSTL COMET OS Demo &copy; 2026
+</footer>
+
+<!-- JS Logic -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  function generatePVID(name, property) {
+    return 'PVID-' + name.replace(/\s/g,'').toUpperCase() + '-' + Math.floor(Math.random()*90000+10000);
+  }
+
+  function getCRL() {
+    return Math.floor(Math.random()*3+3); // 3-5 for demo
+  }
+
+  function verifyOwner() {
+    const name = document.getElementById('ownerName').value.trim();
+    const nin = document.getElementById('ownerNIN').value.trim();
+    const bvn = document.getElementById('ownerBVN').value.trim();
+    const property = document.getElementById('propertyDesc').value.trim();
+    if(!name || !nin || !bvn || !property) { alert('Please fill all owner fields.'); return; }
+
+    const pvid = generatePVID(name, property);
+    const crl = getCRL();
+
+    document.getElementById('dashOwner').innerText = name;
+    document.getElementById('dashPVID').innerText = pvid;
+    document.getElementById('dashProperty').innerText = property;
+    document.getElementById('dashCRL').innerText = crl;
+    document.getElementById('dashboard').style.display = 'block';
+
+    QRCode.toCanvas(document.getElementById('qrBox'), `Owner:${name},PVID:${pvid},Property:${property},CRL:${crl}`, function (error) { if(error) console.error(error); });
+
+    document.getElementById('userForm').style.display = 'block';
+  }
+
+  function verifyUser() {
+    const userName = document.getElementById('userName').value.trim();
+    const userNIN = document.getElementById('userNIN').value.trim();
+    const userBVN = document.getElementById('userBVN').value.trim();
+    if(!userName || !userNIN || !userBVN) { alert('Please fill all tenant/buyer fields.'); return; }
+
+    alert(`Tenant/Buyer ${userName} verified successfully!`);
+    document.getElementById('nextSteps').style.display = 'block';
+  }
+
+  function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const owner = document.getElementById('dashOwner').innerText;
+    const pvid = document.getElementById('dashPVID').innerText;
+    const property = document.getElementById('dashProperty').innerText;
+    const crl = document.getElementById('dashCRL').innerText;
+
+    doc.setFontSize(14);
+    doc.text('FSTL COMET OS Verification Report', 20, 20);
+    doc.setFontSize(11);
+    doc.text(`Owner: ${owner}`, 20, 40);
+    doc.text(`Property: ${property}`, 20, 50);
+    doc.text(`PVID: ${pvid}`, 20, 60);
+    doc.text(`CRL Level: ${crl}`, 20, 70);
+    doc.text('This report confirms a traceable and accountable property claim.', 20, 90);
+
+    doc.save(`COMETOS_Verification_${pvid}.pdf`);
+  }
 </script>
-
 </body>
 </html>

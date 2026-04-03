@@ -3,128 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FSTL COMET OS</title>
-
+<title>FSTL COMET OS - Production Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
 <style>
-body { margin:0; font-family:'Inter', sans-serif; background:#f5f7fa; color:#1c1e21; }
-
-#landing {
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  background:#0b4f6c;
-  color:#fff;
-  padding:20px;
-}
-#landing h1 { font-size:2rem; margin-bottom:10px; }
-#landing p { max-width:520px; }
-#landing button { margin-top:20px; padding:12px 20px; border:none; border-radius:6px; background:#fff; color:#0b4f6c; font-weight:600; cursor:pointer; }
-
+body { margin:0; font-family:'Inter', sans-serif; background:#f5f7fa; }
+#landing { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#0b4f6c; color:#fff; text-align:center; padding:20px;}
+#landing h1 { font-size:2.5rem; margin-bottom:10px; }
+#landing p { font-size:1.2rem; margin-bottom:20px; }
+.sample-box { background:#fff; padding:15px; border-radius:8px; color:#000; margin-top:20px; }
 #app { display:none; padding:20px; max-width:900px; margin:auto; }
-
-.card {
-  background:#fff;
-  padding:20px;
-  border-radius:10px;
-  margin-bottom:20px;
-  box-shadow:0 3px 8px rgba(0,0,0,0.05);
-}
-
-h2 { font-size:1.1rem; margin-bottom:10px; color:#0b4f6c; }
-
-input, textarea, select {
-  width:100%;
-  padding:10px;
-  margin-bottom:10px;
-  border-radius:6px;
-  border:1px solid #ccc;
-}
-
-button.main {
-  width:100%;
-  padding:12px;
-  background:#0b4f6c;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-.dashboard { display:none; }
-.qr-box { text-align:center; margin-top:15px; }
-.section-note { font-size:0.9rem; color:#555; }
+.card { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+input, textarea, select { width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; font-size:0.95rem; }
+button { width:100%; padding:12px; background:#0b4f6c; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:500; }
+.dashboard { display:none; text-align:left; }
+.qr-box { text-align:center; margin:15px 0; }
+.cta { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.cta button { flex:1; }
+.tooltip { font-size:0.8rem; color:#666; margin-bottom:10px; }
 </style>
 </head>
-
 <body>
 
-<!-- LANDING -->
+<!-- LANDING PAGE -->
 <div id="landing">
-  <h1>FSTL COMET OS</h1>
-  <p>Digital Property Verification Infrastructure</p>
-  <p>Verify identity-linked property claims. Generate a PVID. Share a verifiable QR record.</p>
-  <button onclick="start()">Proceed</button>
+<h1>FSTL COMET OS</h1>
+<p>Create a Verified Property Record and Digital ID Wallet</p>
+<div class="sample-box">
+<b>Sample QR Preview:</b>
+<canvas id="sampleQR"></canvas>
+</div>
+<p class="tooltip">Scan the QR to see a demonstration of verification.</p>
+<button onclick="start()">Start Verification</button>
 </div>
 
 <!-- APP -->
 <div id="app">
 
+<!-- OWNER FORM -->
 <div class="card">
-<h2>Owner Identity</h2>
-<input id="name" placeholder="Full Name">
-<input id="nin" placeholder="National ID (NIN / Equivalent)">
-<input id="bvn" placeholder="Financial ID (BVN / Equivalent)">
+<h3>Owner / Agent Information</h3>
+<input id="name" placeholder="Full Name (as official ID)">
 <input id="resAddress" placeholder="Residential Address">
-</div>
-
-<div class="card">
-<h2>Contact Details</h2>
 <input id="phone" placeholder="Phone Number">
 <input id="whatsapp" placeholder="WhatsApp Number">
 <input id="email" placeholder="Email Address">
+<select id="idType">
+<option value="">Select ID Type</option>
+<option>NIN</option>
+<option>BVN</option>
+<option>Other Country Equivalent</option>
+</select>
+<input id="idNumber" placeholder="ID Number">
 </div>
 
+<!-- PROPERTY FORM -->
 <div class="card">
-<h2>Declared Claim</h2>
+<h3>Property Information</h3>
+<input id="propAddress" placeholder="Property Address / Location">
+<textarea id="property" placeholder="Describe the property for sale, rent, or collateral"></textarea>
 <select id="claim">
-<option value="">Select Claim Type</option>
+<option value="">Select Ownership Claim</option>
 <option>Personal Ownership</option>
 <option>Family Property</option>
 <option>Authorized Representative</option>
-<option>Agent Acting on Behalf</option>
+<option>Agent</option>
 </select>
 </div>
 
-<div class="card">
-<h2>Property</h2>
-<textarea id="property" placeholder="Property Address / Description"></textarea>
+<button onclick="verify()">Create My Property QR</button>
+
+<!-- DASHBOARD / VERIFICATION -->
+<div class="card dashboard" id="dashboard">
+<h3>Verification Record</h3>
+<p><b>Name:</b> <span id="dName"></span></p>
+<p><b>Residential Address:</b> <span id="dResAddress"></span></p>
+<p><b>Property Address:</b> <span id="dPropAddress"></span></p>
+<p><b>Claim:</b> <span id="dClaim"></span></p>
+<p><b>PVID:</b> <span id="dPvid"></span></p>
+<p><b>Verification Strength:</b> <span id="dCrl"></span></p>
+
+<div class="qr-box"><canvas id="qr"></canvas></div>
+
+<div class="cta">
+<button onclick="ctaAction('SELL')">SELL</button>
+<button onclick="ctaAction('RENT')">RENT</button>
+<button onclick="ctaAction('MORTGAGE LOAN')">MORTGAGE LOAN</button>
 </div>
 
-<button class="main" onclick="verify()">Generate Verification</button>
-
-<div class="card dashboard" id="dashboard">
-<h2>Verification Record</h2>
-
-<p><b>Owner:</b> <span id="dName"></span></p>
-<p><b>PVID:</b> <span id="dPvid"></span></p>
-<p><b>Property:</b> <span id="dProperty"></span></p>
-<p><b>Claim:</b> <span id="dClaim"></span></p>
-<p><b>CRL:</b> <span id="dCrl"></span></p>
-<p><b>Status:</b> VERIFIED</p>
-
-<div class="qr-box" id="qr"></div>
-
-<p class="section-note">
-Use this PVID or QR for all property-related engagements.
-</p>
-
-<button class="main" onclick="downloadPDF()">Download Report</button>
+<button onclick="downloadPDF()">Download Verified Property PDF</button>
 </div>
 
 </div>
@@ -133,97 +99,110 @@ Use this PVID or QR for all property-related engagements.
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
+// Sample QR on landing
+QRCode.toCanvas(sampleQR, "FSTL COMET OS DEMO QR");
 
+// Navigation
 function start(){
   document.getElementById("landing").style.display="none";
   document.getElementById("app").style.display="block";
 }
 
-function generatePVID(name){
-  return "PVID-" + name.replace(/\s/g,'').toUpperCase() + "-" + Math.floor(Math.random()*100000);
+// CRL logic
+function computeCRL(name, resAddress, propAddress, claim, phone, whatsapp, email, idType, idNumber){
+  let score = 1;
+  if(name && resAddress && propAddress) score = 2;
+  if(score==2 && claim) score =3;
+  if(score==3 && phone && whatsapp && email) score=4;
+  if(score==4 && idType && idNumber) score=5;
+  return score;
+}
+function crlText(level){ return ["","Very Weak","Weak","Moderate","Strong","Very Strong"][level]; }
+function crlAdvice(level){
+  return ["","Provide complete identity and property details.","Include residential and property addresses.","Clarify ownership claim.","All contacts recorded, ready to transact.","Excellent. Your property is fully verified and secure."][level];
 }
 
-function generateCRL(){
-  return "Level 4 — Strong Consistency";
-}
-
+// Verification
 function verify(){
-
   const name = document.getElementById("name").value.trim();
+  const resAddress = document.getElementById("resAddress").value.trim();
+  const propAddress = document.getElementById("propAddress").value.trim();
   const property = document.getElementById("property").value.trim();
   const claim = document.getElementById("claim").value;
+  const phone = document.getElementById("phone").value.trim();
+  const whatsapp = document.getElementById("whatsapp").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const idType = document.getElementById("idType").value;
+  const idNumber = document.getElementById("idNumber").value.trim();
 
-  if(!name || !property || !claim){
-    alert("Complete required fields.");
+  if(!name || !resAddress || !propAddress || !property || !claim){
+    alert("Please complete all required fields.");
     return;
   }
 
-  const pvid = generatePVID(name);
-  const crl = generateCRL();
-  const time = new Date().toLocaleString();
+  const pvid = "PVID-" + Math.floor(Math.random()*100000);
+  const crlLevel = computeCRL(name,resAddress,propAddress,claim,phone,whatsapp,email,idType,idNumber);
+  const crl = crlText(crlLevel);
 
-  const qrData =
-`FSTL COMET OS RECORD
-
-PVID: ${pvid}
-Owner: ${name}
-Property: ${property}
-
-Claim: ${claim}
-CRL: ${crl}
-Status: VERIFIED
-Time: ${time}`;
-
+  // Populate dashboard
   document.getElementById("dName").innerText = name;
-  document.getElementById("dPvid").innerText = pvid;
-  document.getElementById("dProperty").innerText = property;
+  document.getElementById("dResAddress").innerText = resAddress;
+  document.getElementById("dPropAddress").innerText = propAddress;
   document.getElementById("dClaim").innerText = claim;
+  document.getElementById("dPvid").innerText = pvid;
   document.getElementById("dCrl").innerText = crl;
 
-  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("dashboard").style.display="block";
 
+  // Generate QR
+  const qrData = `PVID:${pvid}\nName:${name}\nProperty:${property}\nVerification Strength:${crl}`;
   QRCode.toCanvas(document.getElementById("qr"), qrData);
 }
 
+// CTA actions
+function ctaAction(type){
+  alert(`CTA Selected: ${type}\nYour property is verified. FSTL COMET OS acts as your digital guarantor for ${type}.`);
+}
+
+// PDF
 function downloadPDF(){
+  const canvas = document.querySelector("#qr canvas");
+  if(!canvas){ alert("Generate QR first"); return; }
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const name = document.getElementById("dName").innerText;
-  const pvid = document.getElementById("dPvid").innerText;
-  const property = document.getElementById("dProperty").innerText;
-  const claim = document.getElementById("dClaim").innerText;
-  const crl = document.getElementById("dCrl").innerText;
+  const img = canvas.toDataURL("image/png");
+  const crlLevel = document.getElementById("dCrl").innerText;
 
-  doc.setFontSize(14);
-  doc.text("FSTL COMET OS VERIFICATION REPORT", 20, 20);
+  doc.setFontSize(16);
+  doc.text("FSTL COMET OS VERIFIED PROPERTY REPORT", 20, 20);
 
-  doc.setFontSize(11);
-  doc.text(`Owner: ${name}`, 20, 40);
-  doc.text(`Property: ${property}`, 20, 50);
-  doc.text(`Claim: ${claim}`, 20, 60);
-  doc.text(`PVID: ${pvid}`, 20, 70);
-  doc.text(`CRL: ${crl}`, 20, 80);
-  doc.text(`Status: VERIFIED`, 20, 90);
+  doc.setFontSize(12);
+  doc.text(`Owner: ${document.getElementById("dName").innerText}`, 20, 35);
+  doc.text(`Residential Address: ${document.getElementById("dResAddress").innerText}`, 20, 45);
+  doc.text(`Property Address: ${document.getElementById("dPropAddress").innerText}`, 20, 55);
+  doc.text(`Ownership Claim: ${document.getElementById("dClaim").innerText}`, 20, 65);
+  doc.text(`PVID: ${document.getElementById("dPvid").innerText}`, 20, 75);
+  doc.text(`Verification Strength: ${crlLevel}`, 20, 85);
 
-  doc.text("Verification Summary:", 20, 110);
-  doc.text("This record reflects a consistent identity-linked property claim.", 20, 120);
+  doc.text("EXPLANATORY NOTE:", 20, 100);
+  doc.text("This document represents a verified property record. FSTL COMET OS acts as a digital guarantor of ownership and property integrity.", 20, 110, {maxWidth:170});
 
-  doc.text("System Comment:", 20, 140);
-  doc.text("Identity signals and declared claim show strong consistency.", 20, 150);
+  doc.text("Q&A:", 20, 130);
+  doc.text("1. Does this confirm ownership? → Yes, for transaction purposes.", 20, 140);
+  doc.text("2. Can I sell/rent/mortgage this property? → Yes, FSTL COMET OS facilitates safe transactions.", 20, 150);
 
-  doc.text("Instruction:", 20, 170);
-  doc.text("Use this PVID or QR for all property engagements.", 20, 180);
+  doc.text("MOTIVATION:", 20, 170);
+  doc.text("Verification Strength is a 1-5 rating. Aim for 5 to maximize trust and market opportunities.", 20, 180);
 
-  const canvas = document.querySelector("#qr canvas");
-  if(canvas){
-    const img = canvas.toDataURL("image/png");
-    doc.addImage(img, 'PNG', 20, 200, 50, 50);
-  }
+  doc.text("NEXT ACTION:", 20, 200);
+  doc.text("Share your QR/PVID with potential buyers, tenants, or lenders. Use CTA buttons: SELL, RENT, or MORTGAGE LOAN.", 20, 210, {maxWidth:170});
 
-  doc.save("FSTL_COMET_OS_REPORT.pdf");
+  doc.addImage(img, 'PNG', 140, 30, 50, 50);
+
+  doc.save("COMET_OS_VERIFIED_PROPERTY.pdf");
 }
-
 </script>
 
 </body>

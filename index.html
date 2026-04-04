@@ -22,23 +22,46 @@ button{background:#003366;color:#fff;padding:10px;border:none;width:100%;margin-
 
 <body>
 
-<header>
+<!-- FRONT COVER -->
+<section id="cover" style="text-align:center; background:#003366; color:white; padding:50px;">
 <h1>FSTL COMET OS</h1>
 <p>Digital Property Verification System</p>
-</header>
+<p>Transforming Property into Trusted Capital</p>
 
-<section>
+<canvas id="systemQR" style="margin-top:20px;"></canvas>
+
+<p style="font-size:12px;">Scan to verify system authenticity</p>
+
+<button onclick="startApp()" style="background:white;color:#003366;margin-top:20px;">
+Start Verification
+</button>
+</section>
+
+<!-- MAIN APP -->
+<section id="app" style="display:none;">
 
 <h3>Owner & Property Input</h3>
 
 <input id="name" placeholder="Owner Name">
-<input id="country" placeholder="Country">
-<input id="primaryID" placeholder="NIN / ID">
+
+<select id="country">
+<option value="">Select Country</option>
+<option>Nigeria</option>
+<option>Ghana</option>
+<option>Kenya</option>
+<option>South Africa</option>
+<option>United Kingdom</option>
+<option>United States</option>
+</select>
+
+<input id="primaryID" placeholder="NIN / National ID">
 <input id="secondaryID" placeholder="BVN / Bank ID">
 <input id="resAddress" placeholder="Residential Address">
+
 <input id="phone" placeholder="Phone">
 <input id="email" placeholder="Email">
 <input id="whatsapp" placeholder="WhatsApp">
+
 <input id="propAddress" placeholder="Property Address">
 
 <select id="claim">
@@ -63,11 +86,13 @@ button{background:#003366;color:#fff;padding:10px;border:none;width:100%;margin-
 <div id="dashboard" class="dashboard">
 <p>Name: <span id="dName"></span></p>
 <p>PVID: <span id="pvid"></span></p>
-<p>CRL: <span id="crl"></span></p>
 <p>Status: <span id="status"></span></p>
-<p>Suggestions:</p>
+<p>CRL: <span id="crl"></span></p>
+
 <div id="suggestions"></div>
+
 <canvas id="qr"></canvas>
+
 <button onclick="generatePDF()">Download PDF</button>
 </div>
 
@@ -75,11 +100,18 @@ button{background:#003366;color:#fff;padding:10px;border:none;width:100%;margin-
 
 <script>
 
-let verificationData = {};
+QRCode.toCanvas(document.getElementById("systemQR"), "FSTL COMET OS SYSTEM");
+
+function startApp(){
+document.getElementById("cover").style.display="none";
+document.getElementById("app").style.display="block";
+}
+
+let verificationData={};
 
 function computeCRL(d){
-let score=1, s=[];
-if(d.name && d.propAddress) score=2; else s.push("Add basic identity and property");
+let score=1,s=[];
+if(d.name && d.propAddress) score=2; else s.push("Add basic identity & property");
 if(score>=2 && d.claim) score=3; else s.push("Clarify ownership");
 if(score>=3 && d.phone && d.email && d.whatsapp) score=4; else s.push("Add contact details");
 if(score>=4 && d.primaryID && d.secondaryID) score=5; else s.push("Add valid ID");
@@ -102,7 +134,7 @@ function verify(){
 
 verificationData={
 name:name.value.trim(),
-country:country.value.trim(),
+country:country.value,
 primaryID:primaryID.value.trim(),
 secondaryID:secondaryID.value.trim(),
 resAddress:resAddress.value.trim(),
@@ -110,11 +142,10 @@ phone:phone.value.trim(),
 email:email.value.trim(),
 whatsapp:whatsapp.value.trim(),
 propAddress:propAddress.value.trim(),
-claim:claim.value.trim(),
-reason:reason.value.trim()
+claim:claim.value,
+reason:reason.value
 };
 
-// NON-BLOCKING GUIDANCE
 let guidance=[];
 if(!verificationData.name) guidance.push("Add owner name");
 if(!verificationData.propAddress) guidance.push("Add property address");
@@ -122,15 +153,12 @@ if(!verificationData.claim) guidance.push("Clarify ownership");
 if(!verificationData.reason) guidance.push("State purpose");
 if(!declaration.checked) guidance.push("Confirm declaration");
 
-// CRL
 let r=computeCRL(verificationData);
 let suggestions=[...r.s,...guidance];
 
-// IDs
 verificationData.id="PVID-"+Math.floor(Math.random()*1000000);
 verificationData.time=new Date().toLocaleString();
 
-// Display
 dName.innerText=verificationData.name||"—";
 pvid.innerText=verificationData.id;
 status.innerText=getStatus(r.score);
@@ -138,42 +166,44 @@ crl.innerText=r.score+"/5";
 crl.className="verification "+getColor(r.score);
 suggestions.innerHTML=suggestions.length?suggestions.join("<br>"):"Ready";
 
-// Show
 dashboard.style.display="block";
 
-// QR (verification)
-let qrData=`
-PVID:${verificationData.id}
-CRL:${r.score}/5
-Status:${getStatus(r.score)}
-Time:${verificationData.time}
-FSTL COMET OS
-`;
+let qrData=`PVID:${verificationData.id} | CRL:${r.score}/5`;
 QRCode.toCanvas(qr,qrData);
-
 }
 
-function generatePDF(){
+function addHeaderFooter(doc,page){
+doc.setFontSize(10);
+doc.text("FSTL COMET OS — Digital Property Verification",20,10);
+doc.setFontSize(8);
+doc.text("PVID: "+(verificationData.id||""),20,285);
+doc.text("Page "+page,180,285);
+}
+
+async function generatePDF(){
 
 const {jsPDF}=window.jspdf;
 let doc=new jsPDF();
 
-// SYSTEM QR (front)
-let sysQR=document.createElement("canvas");
-QRCode.toCanvas(sysQR,"FSTL COMET OS SYSTEM");
+// SYSTEM QR
+let sysCanvas=document.createElement("canvas");
+await QRCode.toCanvas(sysCanvas,"FSTL COMET OS SYSTEM");
+let sysQR=sysCanvas.toDataURL();
 
 // VERIFICATION QR
-let verQR=document.getElementById("qr").toDataURL("image/png");
+let verQR=document.getElementById("qr").toDataURL();
 
-// PAGE 1 — FRONT COVER
+// PAGE 1
 doc.text("FSTL COMET OS",20,30);
 doc.text("Digital Property Verification",20,40);
 doc.text("Trusted Transaction Layer",20,50);
-doc.addImage(sysQR.toDataURL(),"PNG",60,70,80,80);
+doc.addImage(sysQR,"PNG",60,70,80,80);
+addHeaderFooter(doc,1);
 
-// PAGE 2 — VERIFICATION
+// PAGE 2
 doc.addPage();
-doc.text("Verification Report",20,20);
+addHeaderFooter(doc,2);
+doc.text("Verification",20,20);
 doc.text("Owner: "+verificationData.name,20,40);
 doc.text("Property: "+verificationData.propAddress,20,50);
 doc.text("PVID: "+verificationData.id,20,60);
@@ -181,23 +211,25 @@ doc.text("CRL: "+crl.innerText,20,70);
 doc.text("Status: "+status.innerText,20,80);
 doc.addImage(verQR,"PNG",130,30,60,60);
 
-// PAGE 3 — MEANING
+// PAGE 3
 doc.addPage();
-doc.text("What This Means",20,20);
-doc.text("This verification structures property data for transaction use.",20,40);
+addHeaderFooter(doc,3);
+doc.text("Meaning",20,20);
+doc.text("This verification structures property for trusted transactions.",20,40);
 
-// PAGE 4 — VALUE
+// PAGE 4
 doc.addPage();
+addHeaderFooter(doc,4);
 doc.text("Value",20,20);
-doc.text("Sell faster, rent with trust, access capital.",20,40);
+doc.text("Sell faster, rent confidently, access capital.",20,40);
 
-// PAGE 5 — LEGAL
+// PAGE 5
 doc.addPage();
+addHeaderFooter(doc,5);
 doc.text("Legal",20,20);
 doc.text("Informational only. False input subject to law.",20,40);
 
 doc.save("FSTL_COMET_OS.pdf");
-
 }
 
 </script>

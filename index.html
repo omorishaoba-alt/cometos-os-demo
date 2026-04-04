@@ -50,13 +50,16 @@ button{width:100%;padding:12px;background:#0b4f6c;color:#fff;border:none;border-
 <option>United Kingdom</option>
 <option>Canada</option>
 <option>India</option>
+<!-- Add other countries as needed -->
 </select>
 
-<input id="primaryID" placeholder="National ID">
-<input id="secondaryID" placeholder="Bank / Financial ID">
-
+<input id="primaryID" placeholder="National ID (NIN)">
+<input id="secondaryID" placeholder="Bank / Financial ID (BVN)">
 <textarea id="resAddress" placeholder="Residential Address"></textarea>
-<textarea id="contact" placeholder="Phone, Email, WhatsApp"></textarea>
+
+<input id="phone" placeholder="Phone Number">
+<input id="email" placeholder="Email Address">
+<input id="whatsapp" placeholder="WhatsApp Number">
 
 <select id="reason">
 <option value="">Reason for Verification</option>
@@ -130,8 +133,8 @@ function computeCRL(d){
 let score=1, s=[];
 if(d.name && d.resAddress && d.propAddress){score=2;} else{s.push("Complete core identity & address");}
 if(score>=2 && d.claim){score=3;} else{s.push("Select ownership");}
-if(score>=3 && d.contact){score=4;} else{s.push("Add contact details");}
-if(score>=4 && d.primaryID && d.secondaryID){score=5;} else{s.push("Provide valid ID");}
+if(score>=3 && d.phone && d.email && d.whatsapp){score=4;} else{s.push("Add full contact details (Phone, Email, WhatsApp)");}
+if(score>=4 && d.primaryID && d.secondaryID){score=5;} else{s.push("Provide valid ID (NIN & BVN)");}
 return {score,s};
 }
 
@@ -163,7 +166,9 @@ country:country.value,
 primaryID:primaryID.value,
 secondaryID:secondaryID.value,
 resAddress:resAddress.value,
-contact:contact.value,
+phone:phone.value,
+email:email.value,
+whatsapp:whatsapp.value,
 propAddress:propAddress.value,
 claim:claim.value,
 reason:reason.value

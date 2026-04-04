@@ -155,30 +155,29 @@ return "green";
 // VERIFY
 function verify(){
 
-if(!declaration.checked){
-alert("You must confirm declaration");
-return;
-}
-
+// Trim values to avoid spaces
 let d={
-name:name.value,
-country:country.value,
-primaryID:primaryID.value,
-secondaryID:secondaryID.value,
-resAddress:resAddress.value,
-phone:phone.value,
-email:email.value,
-whatsapp:whatsapp.value,
-propAddress:propAddress.value,
-claim:claim.value,
-reason:reason.value
+name:name.value.trim(),
+country:country.value.trim(),
+primaryID:primaryID.value.trim(),
+secondaryID:secondaryID.value.trim(),
+resAddress:resAddress.value.trim(),
+phone:phone.value.trim(),
+email:email.value.trim(),
+whatsapp:whatsapp.value.trim(),
+propAddress:propAddress.value.trim(),
+claim:claim.value.trim(),
+reason:reason.value.trim()
 };
 
-if(!d.name || !d.propAddress){
-alert("Complete required fields");
-return;
-}
+// Validate required fields
+if(!d.name){alert("Enter owner name"); return;}
+if(!d.propAddress){alert("Enter property address"); return;}
+if(!d.claim){alert("Select declared ownership"); return;}
+if(!d.reason){alert("Select reason for verification"); return;}
+if(!declaration.checked){alert("You must confirm declaration"); return;}
 
+// Generate PVID and timestamp
 let id="PVID-"+Math.floor(Math.random()*1000000);
 let timeStamp=new Date().toLocaleString();
 

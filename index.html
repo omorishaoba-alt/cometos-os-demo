@@ -15,5 +15,230 @@ body{margin:0;font-family:'Inter',sans-serif;background:#f5f7fa;}
 #app{display:none;padding:20px;max-width:900px;margin:auto;}
 .card{background:#fff;padding:20px;border-radius:10px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
 input,textarea,select{width:100%;padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ccc;}
-button{width:100%;padding:12px;background:#0b4f6c;color:#fff;border:none;border-radius:6px;}
-.verification{padding:5px 10px;border-radius
+button{width:100%;padding:12px;background:#0b4f6c;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+.verification{padding:6px 10px;border-radius:4px;color:#fff;font-weight:bold;}
+.red{background:red;} .orange{background:orange;} .green{background:green;}
+.qr{text-align:center;margin-top:10px;}
+.suggestions{font-size:13px;margin-top:10px;}
+</style>
+</head>
+
+<body>
+
+<!-- LANDING PAGE -->
+<div id="landing">
+<h1>FSTL COMET OS</h1>
+<p>Digital Property Verification Platform</p>
+<canvas id="sampleQR"></canvas>
+<p>Scan to preview verification system</p>
+<button onclick="start()">Start</button>
+</div>
+
+<!-- APPLICATION -->
+<div id="app">
+
+<div class="card">
+<h3>Owner Verification</h3>
+<input id="name" placeholder="Full Name of Owner">
+<input id="nin" placeholder="NIN / Country ID">
+<input id="bvn" placeholder="BVN / Country Bank ID">
+<textarea id="resAddress" placeholder="Residential Address"></textarea>
+<textarea id="contact" placeholder="Phone, Email, WhatsApp"></textarea>
+</div>
+
+<div class="card">
+<h3>Property Verification</h3>
+<textarea id="propAddress" placeholder="Property Address"></textarea>
+<select id="claim">
+<option value="">Declared Ownership</option>
+<option>Family</option>
+<option>Inherited</option>
+<option>Purchased</option>
+</select>
+</div>
+
+<button onclick="verify()">Generate Verification</button>
+
+<div id="dashboard" class="card" style="display:none;">
+<h3>Verification Output</h3>
+
+<p><b>Name:</b> <span id="dName"></span></p>
+<p><b>PVID:</b> <span id="pvid"></span></p>
+<p><b>CRL (1–5):</b> <span id="crl" class="verification"></span></p>
+
+<div id="suggestions" class="suggestions"></div>
+
+<div class="qr"><canvas id="qr"></canvas></div>
+
+<h4>Next Actions</h4>
+<button onclick="alert('SELL')">SELL</button>
+<button onclick="alert('RENT')">RENT</button>
+<button onclick="alert('MORTGAGE LOAN')">MORTGAGE LOAN</button>
+
+<button onclick="generatePDF()">Download PDF</button>
+</div>
+
+</div>
+
+<script>
+
+// Landing QR
+QRCode.toCanvas(document.getElementById("sampleQR"), "FSTL COMET OS DEMO");
+
+// Start App
+function start(){
+document.getElementById("landing").style.display="none";
+document.getElementById("app").style.display="block";
+}
+
+// CRL Logic
+function computeCRL(data){
+let score=1;
+let suggestions=[];
+
+if(data.name && data.resAddress && data.propAddress){
+score=2;
+}else{
+suggestions.push("Provide Name, Residential Address, and Property Address");
+}
+
+if(score>=2 && data.claim){
+score=3;
+}else{
+suggestions.push("Select Declared Ownership");
+}
+
+if(score>=3 && data.contact){
+score=4;
+}else{
+suggestions.push("Add Contact Details");
+}
+
+if(score>=4 && data.nin && data.bvn){
+score=5;
+}else{
+suggestions.push("Add NIN and BVN");
+}
+
+return {score,suggestions};
+}
+
+function getColor(score){
+if(score<=2) return "red";
+if(score==3) return "orange";
+return "green";
+}
+
+// VERIFY
+function verify(){
+
+let data={
+name:name.value,
+nin:nin.value,
+bvn:bvn.value,
+resAddress:resAddress.value,
+contact:contact.value,
+propAddress:propAddress.value,
+claim:claim.value
+};
+
+if(!data.name || !data.propAddress){
+alert("Complete required fields");
+return;
+}
+
+let id="PVID-"+Math.floor(Math.random()*1000000);
+
+let result=computeCRL(data);
+
+dName.innerText=data.name;
+pvid.innerText=id;
+
+crl.innerText=result.score+"/5";
+crl.className="verification "+getColor(result.score);
+
+suggestions.innerHTML = result.suggestions.length ?
+"Improve Verification:<br>"+result.suggestions.join("<br>") :
+"Strong Verification";
+
+dashboard.style.display="block";
+
+// QR DATA
+let qrData=`
+PVID:${id}
+Name:${data.name}
+Property:${data.propAddress}
+CRL:${result.score}/5
+Suggestions:${result.suggestions.join("; ")}
+Acronyms:
+PVID=Property Verification ID
+CRL=Collateral Reliability Level
+NIN=National ID
+BVN=Bank ID
+`;
+
+QRCode.toCanvas(document.getElementById("qr"), qrData);
+}
+
+// PDF GENERATION
+function generatePDF(){
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+
+let canvas=document.getElementById("qr");
+let img=canvas.toDataURL("image/png");
+
+// PAGE 1
+doc.setFontSize(16);
+doc.text("FSTL COMET OS VERIFIED PROPERTY REPORT",20,20);
+
+doc.setFontSize(12);
+doc.text("Owner: "+dName.innerText,20,40);
+doc.text("PVID: "+pvid.innerText,20,50);
+doc.text("Verification Strength: "+crl.innerText,20,60);
+
+doc.text("Explanation:",20,80);
+doc.text("This document represents a digital verification output acting as a guarantor layer for property transactions.",20,90,{maxWidth:170});
+
+doc.text("Q&A:",20,120);
+doc.text("Is this ownership proof? → Supports trust, not title.",20,130);
+doc.text("Can I transact? → Yes, with legal professionals.",20,140);
+
+doc.text("Motivation:",20,170);
+doc.text("Improve your score to increase trust and capital access.",20,180);
+
+doc.addImage(img,'PNG',140,30,50,50);
+
+// PAGE 2 SOP
+doc.addPage();
+doc.text("SOP GUIDE",20,20);
+
+doc.text("1. Enter Owner Details",20,40);
+doc.text("2. Enter Property Details",20,50);
+doc.text("3. System computes CRL (1–5)",20,60);
+doc.text("4. QR Code generated",20,70);
+doc.text("5. PDF generated",20,80);
+doc.text("6. Proceed to SELL / RENT / LOAN",20,90);
+
+// PAGE 3 LEGAL
+doc.addPage();
+doc.text("LEGAL NOTICE",20,20);
+
+doc.text("FSTL COMET OS provides verification as informational only.",20,40);
+doc.text("No guarantee of ownership beyond user input.",20,50);
+doc.text("False inputs are subject to criminal laws of jurisdiction.",20,60);
+
+doc.text("TERMS AND CONDITIONS",20,90);
+
+doc.text("1. Not a legal title document.",20,110);
+doc.text("2. Based on user input.",20,120);
+doc.text("3. Requires legal oversight.",20,130);
+doc.text("4. FSTL may invalidate misuse.",20,140);
+
+doc.save("FSTL_COMET_OS.pdf");
+}
+
+</script>
+
+</body>
+</html>

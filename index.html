@@ -10,19 +10,80 @@
 
 <style>
 body{font-family:Arial;margin:0;background:#f4f4f4}
-section{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:8px}
-input,select{width:100%;padding:10px;margin:6px 0}
-button{background:#003366;color:#fff;padding:12px;border:none;width:100%;margin-top:10px}
-.verification{padding:6px 12px;color:#fff;border-radius:4px}
-.green{background:green} .orange{background:orange} .red{background:red}
-.dashboard{display:none;margin-top:20px;background:#eef;padding:20px;border-radius:8px}
+
+/* FULL SCREEN */
+section{
+width:100%;
+min-height:100vh;
+padding:40px;
+box-sizing:border-box;
+}
+
+/* COVER */
+#cover{
+background:#003366;
+color:white;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+}
+
+/* APP */
+#app{
+background:#fff;
+display:none;
+}
+
+/* FORM WIDTH CONTROL */
+.form-container{
+max-width:900px;
+margin:auto;
+}
+
+/* INPUTS */
+input,select{
+width:100%;
+padding:10px;
+margin:6px 0;
+}
+
+/* BUTTON */
+button{
+background:#003366;
+color:#fff;
+padding:12px;
+border:none;
+width:100%;
+margin-top:10px;
+}
+
+/* CRL COLORS */
+.verification{
+padding:6px 12px;
+color:#fff;
+border-radius:4px;
+}
+.green{background:green}
+.orange{background:orange}
+.red{background:red}
+
+/* DASHBOARD */
+.dashboard{
+display:none;
+margin-top:30px;
+background:#eef;
+padding:20px;
+border-radius:8px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- FRONT COVER -->
-<section id="cover" style="text-align:center;background:#003366;color:white;padding:60px;">
+<!-- COVER -->
+<section id="cover">
 <h1>FSTL COMET OS</h1>
 <p>Digital Property Verification System</p>
 <p>Transforming Property into Trusted Capital</p>
@@ -31,13 +92,14 @@ button{background:#003366;color:#fff;padding:12px;border:none;width:100%;margin-
 
 <p style="font-size:12px;margin-top:10px;">Scan to verify system authenticity</p>
 
-<button onclick="startApp()" style="background:white;color:#003366;margin-top:20px;">
+<button onclick="startApp()" style="background:white;color:#003366;width:250px;">
 Start Verification
 </button>
 </section>
 
-<!-- MAIN APP -->
-<section id="app" style="display:none;">
+<!-- APP -->
+<section id="app">
+<div class="form-container">
 
 <h3>Owner & Property Input</h3>
 
@@ -45,12 +107,40 @@ Start Verification
 
 <select id="country">
 <option value="">Select Country</option>
+
+<!-- AFRICA -->
 <option>Nigeria</option>
 <option>Ghana</option>
 <option>Kenya</option>
 <option>South Africa</option>
+<option>Egypt</option>
+
+<!-- EUROPE -->
 <option>United Kingdom</option>
+<option>Germany</option>
+<option>France</option>
+<option>Netherlands</option>
+
+<!-- NORTH AMERICA -->
 <option>United States</option>
+<option>Canada</option>
+
+<!-- SOUTH AMERICA -->
+<option>Brazil</option>
+<option>Argentina</option>
+
+<!-- MIDDLE EAST -->
+<option>United Arab Emirates</option>
+<option>Saudi Arabia</option>
+
+<!-- ASIA -->
+<option>India</option>
+<option>China</option>
+<option>Singapore</option>
+
+<!-- OCEANIA -->
+<option>Australia</option>
+<option>New Zealand</option>
 </select>
 
 <input id="primaryID" placeholder="NIN / National ID">
@@ -89,7 +179,7 @@ Start Verification
 <p><b>Status:</b> <span id="status"></span></p>
 <p><b>CRL:</b> <span id="crl"></span></p>
 
-<p style="margin-top:10px; font-weight:bold; color:#003366;">
+<p style="margin-top:10px;font-weight:bold;color:#003366;">
 This verification improves your ability to transact with confidence.
 </p>
 
@@ -100,19 +190,24 @@ This verification improves your ability to transact with confidence.
 <button onclick="generatePDF()">Download PDF</button>
 </div>
 
+</div>
 </section>
 
 <script>
 
+// SYSTEM QR
 QRCode.toCanvas(document.getElementById("systemQR"), "FSTL COMET OS SYSTEM");
 
+// NAVIGATION
 function startApp(){
 document.getElementById("cover").style.display="none";
 document.getElementById("app").style.display="block";
 }
 
+// DATA
 let verificationData={};
 
+// CRL ENGINE
 function computeCRL(d){
 let score=1,s=[];
 if(d.name && d.propAddress) score=2; else s.push("Add basic identity & property");
@@ -134,6 +229,7 @@ if(s==3) return "orange";
 return "green";
 }
 
+// VERIFY
 function verify(){
 
 verificationData={
@@ -161,7 +257,6 @@ let r=computeCRL(verificationData);
 let suggestions=[...r.s,...guidance];
 
 verificationData.id="PVID-"+Math.floor(Math.random()*1000000);
-verificationData.time=new Date().toLocaleString();
 
 dName.innerText=verificationData.name||"—";
 pvid.innerText=verificationData.id;
@@ -173,10 +268,10 @@ suggestions.innerHTML=suggestions.length?suggestions.join("<br>"):"Ready";
 
 dashboard.style.display="block";
 
-let qrData=`PVID:${verificationData.id} | CRL:${r.score}/5`;
-QRCode.toCanvas(qr,qrData);
+QRCode.toCanvas(qr,`PVID:${verificationData.id}|CRL:${r.score}/5`);
 }
 
+// PDF
 function addHeaderFooter(doc,page){
 doc.setFontSize(10);
 doc.text("FSTL COMET OS — Digital Property Verification",20,10);
@@ -205,15 +300,12 @@ doc.text("FSTL COMET OS",105,40,null,null,"center");
 doc.setFontSize(12);
 doc.text("Digital Property Verification System",105,55,null,null,"center");
 doc.addImage(sysQR,"PNG",55,90,100,100);
-doc.setFontSize(10);
 doc.text("Transforming Property into Trusted Capital",105,220,null,null,"center");
 
 // PAGE 2
 doc.addPage();
 addHeaderFooter(doc,2);
-doc.setFontSize(16);
 doc.text("Verification Report",20,30);
-doc.setFontSize(11);
 doc.text("Owner: "+verificationData.name,20,70);
 doc.text("Property: "+verificationData.propAddress,20,90);
 doc.text("PVID: "+verificationData.id,20,110);
@@ -224,49 +316,21 @@ doc.addImage(verQR,"PNG",130,80,60,60);
 // PAGE 3
 doc.addPage();
 addHeaderFooter(doc,3);
-doc.setFontSize(14);
 doc.text("What This Means",105,70,null,null,"center");
-doc.setFontSize(11);
-doc.text(
-"This verification structures property information into a trusted format for transactions.",
-105,
-120,
-{maxWidth:160, align:"center"}
-);
+doc.text("This verification structures property for trusted transactions.",105,120,{align:"center"});
 
 // PAGE 4
 doc.addPage();
 addHeaderFooter(doc,4);
-doc.setFontSize(14);
 doc.text("Value",105,70,null,null,"center");
-
-doc.setFontSize(11);
-doc.text(
-"This verification improves your ability to transact with confidence.",
-105,
-110,
-{align:"center"}
-);
-
-doc.text(
-"Sell faster • Rent confidently • Access capital",
-105,
-140,
-{align:"center"}
-);
+doc.text("This verification improves your ability to transact with confidence.",105,110,{align:"center"});
+doc.text("Sell faster • Rent confidently • Access capital",105,140,{align:"center"});
 
 // PAGE 5
 doc.addPage();
 addHeaderFooter(doc,5);
-doc.setFontSize(12);
 doc.text("Legal Notice",20,70);
-doc.setFontSize(10);
-doc.text(
-"This document is informational and not a title certificate. False inputs are subject to applicable laws.",
-20,
-110,
-{maxWidth:170}
-);
+doc.text("This document is informational. False inputs are subject to law.",20,110,{maxWidth:170});
 
 doc.save("FSTL_COMET_OS.pdf");
 }

@@ -30,16 +30,20 @@ align-items:center;
 text-align:center;
 }
 
-/* APP */
+/* APP FULL CENTER */
 #app{
-background:#fff;
 display:none;
+min-height:100vh;
+background:#fff;
+display:flex;
+justify-content:center;
+align-items:center;
 }
 
-/* FORM WIDTH CONTROL */
+/* FORM */
 .form-container{
 max-width:900px;
-margin:auto;
+width:100%;
 }
 
 /* INPUTS */
@@ -57,6 +61,7 @@ padding:12px;
 border:none;
 width:100%;
 margin-top:10px;
+cursor:pointer;
 }
 
 /* CRL COLORS */
@@ -107,38 +112,24 @@ Start Verification
 
 <select id="country">
 <option value="">Select Country</option>
-
-<!-- AFRICA -->
 <option>Nigeria</option>
 <option>Ghana</option>
 <option>Kenya</option>
 <option>South Africa</option>
 <option>Egypt</option>
-
-<!-- EUROPE -->
 <option>United Kingdom</option>
 <option>Germany</option>
 <option>France</option>
 <option>Netherlands</option>
-
-<!-- NORTH AMERICA -->
 <option>United States</option>
 <option>Canada</option>
-
-<!-- SOUTH AMERICA -->
 <option>Brazil</option>
 <option>Argentina</option>
-
-<!-- MIDDLE EAST -->
 <option>United Arab Emirates</option>
 <option>Saudi Arabia</option>
-
-<!-- ASIA -->
 <option>India</option>
 <option>China</option>
 <option>Singapore</option>
-
-<!-- OCEANIA -->
 <option>Australia</option>
 <option>New Zealand</option>
 </select>
@@ -198,16 +189,16 @@ This verification improves your ability to transact with confidence.
 // SYSTEM QR
 QRCode.toCanvas(document.getElementById("systemQR"), "FSTL COMET OS SYSTEM");
 
-// NAVIGATION
+// NAV
 function startApp(){
 document.getElementById("cover").style.display="none";
-document.getElementById("app").style.display="block";
+document.getElementById("app").style.display="flex";
 }
 
 // DATA
 let verificationData={};
 
-// CRL ENGINE
+// CRL
 function computeCRL(d){
 let score=1,s=[];
 if(d.name && d.propAddress) score=2; else s.push("Add basic identity & property");
@@ -282,16 +273,21 @@ doc.text("Page "+page,180,285);
 
 async function generatePDF(){
 
-const {jsPDF}=window.jspdf;
-let doc=new jsPDF();
+if(!verificationData.id){
+alert("Generate verification first");
+return;
+}
+
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
 
 // SYSTEM QR
-let sysCanvas=document.createElement("canvas");
-await QRCode.toCanvas(sysCanvas,"FSTL COMET OS SYSTEM");
-let sysQR=sysCanvas.toDataURL();
+let sysCanvas = document.createElement("canvas");
+await QRCode.toCanvas(sysCanvas, "FSTL COMET OS SYSTEM");
+let sysQR = sysCanvas.toDataURL();
 
 // VERIFICATION QR
-let verQR=document.getElementById("qr").toDataURL();
+let verQR = document.getElementById("qr").toDataURL();
 
 // PAGE 1
 addHeaderFooter(doc,1);

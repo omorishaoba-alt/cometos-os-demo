@@ -25,7 +25,7 @@ box-sizing:border-box;
 background:#fff;
 }
 
-/* LANDING FULL PAGE FIX */
+/* FULL PAGE LANDING */
 #landing {
 display:flex;
 flex-direction:column;
@@ -34,7 +34,12 @@ align-items:center;
 text-align:center;
 }
 
-h1,h2,h3 {
+h1, h2 {
+color:#007BFF;
+margin-bottom:20px;
+}
+
+h3 {
 margin-bottom:20px;
 }
 
@@ -55,11 +60,12 @@ button {
 width:100%;
 padding:15px;
 margin-top:25px;
-background:#000;
+background:#007BFF;
 color:#fff;
 border:none;
 font-size:16px;
 cursor:pointer;
+border-radius:6px;
 }
 
 #crl {
@@ -116,31 +122,25 @@ margin:20px auto;
 <label>Country</label>
 <select id="country">
 <option value="">Select</option>
-
 <option>Nigeria</option>
 <option>Ghana</option>
 <option>Kenya</option>
 <option>South Africa</option>
 <option>Egypt</option>
-
 <option>USA</option>
 <option>UK</option>
 <option>Canada</option>
 <option>Germany</option>
 <option>France</option>
-
 <option>Brazil</option>
 <option>Mexico</option>
 <option>Argentina</option>
-
 <option>China</option>
 <option>India</option>
 <option>Japan</option>
 <option>Singapore</option>
-
 <option>Australia</option>
 <option>New Zealand</option>
-
 <option>UAE</option>
 <option>Saudi Arabia</option>
 </select>
@@ -184,7 +184,7 @@ document.getElementById("form").style.display="block";
 /* SYSTEM QR */
 QRCode.toCanvas(document.getElementById("landingQR"), "FSTL COMET OS SYSTEM");
 
-/* VERIFICATION STRENGTH (ENGINE INTACT) */
+/* VERIFICATION STRENGTH */
 function score(){
 let s=0;
 
@@ -198,7 +198,15 @@ if(prop.value) s+=20;
 if(reason.value) s+=10;
 
 crl.innerHTML="Verification Strength: "+s+"%";
-crl.style.color = s>70 ? "green":"orange";
+
+/* COLOR LOGIC */
+if(s >= 80){
+  crl.style.color = "#007BFF";
+} else if (s >= 50){
+  crl.style.color = "orange";
+} else {
+  crl.style.color = "red";
+}
 }
 
 document.querySelectorAll("input,select").forEach(e=>{
@@ -214,17 +222,17 @@ prop:prop.value,
 id:Math.floor(Math.random()*1000000)
 };
 
+/* NON-BLOCKING */
 if(!data.name || !data.prop){
-alert("Complete required fields");
-return;
+alert("Proceeding with incomplete data. Verification strength will be lower.");
 }
 
-/* GENERATE VERIFICATION QR */
+/* GENERATE QR */
 QRCode.toCanvas(document.getElementById("qr"), JSON.stringify(data), function(){
 
 var doc=new jsPDF();
 
-/* PAGE 1 - COVER */
+/* COVER */
 doc.setFontSize(22);
 doc.text("FSTL COMET OS",105,40,null,null,"center");
 
@@ -236,7 +244,7 @@ doc.addImage(q1,"PNG",55,90,100,100);
 
 doc.text("Transforming Property into Trusted Capital",105,220,null,null,"center");
 
-/* PAGE 2 - REPORT */
+/* REPORT */
 doc.addPage();
 doc.text("Verification Report",20,30);
 doc.text("Owner: "+name.value,20,60);
@@ -247,19 +255,19 @@ doc.text(crl.innerText,20,120);
 var q2=document.getElementById("qr").toDataURL();
 doc.addImage(q2,"PNG",130,70,60,60);
 
-/* PAGE 3 - EXPLANATION */
+/* EXPLANATION */
 doc.addPage();
 doc.text("What This Means",105,60,null,null,"center");
 doc.text("This verification improves your ability to transact with confidence.",105,100,null,null,"center");
 doc.text("Sell faster • Rent securely • Access capital",105,130,null,null,"center");
 
-/* PAGE 4 - ACRONYMS */
+/* ACRONYMS */
 doc.addPage();
 doc.text("Acronyms",20,40);
 doc.text("NIN: National Identity Number",20,70);
 doc.text("BVN: Bank Verification Number",20,90);
 
-/* PAGE 5 - LEGAL */
+/* LEGAL */
 doc.addPage();
 doc.text("Legal Notice",20,40);
 doc.text("False inputs are subject to criminal laws of the jurisdiction of verification.",20,80);

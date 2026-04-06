@@ -15,7 +15,7 @@ margin:0;
 padding:0;
 height:100%;
 font-family:Arial, sans-serif;
-background:#f4f4f4;
+background:#eaf3ff;
 }
 
 .page {
@@ -25,7 +25,7 @@ box-sizing:border-box;
 background:#fff;
 }
 
-/* FULL PAGE LANDING */
+/* LANDING FULL PAGE */
 #landing {
 display:flex;
 flex-direction:column;
@@ -34,8 +34,9 @@ align-items:center;
 text-align:center;
 }
 
+/* BLUE FINTECH LOCK */
 h1, h2 {
-color:#007BFF;
+color:#007BFF !important;
 margin-bottom:20px;
 }
 
@@ -60,7 +61,7 @@ button {
 width:100%;
 padding:15px;
 margin-top:25px;
-background:#007BFF;
+background:#007BFF !important;
 color:#fff;
 border:none;
 font-size:16px;
@@ -92,7 +93,7 @@ margin:20px auto;
 
 <p>Transforming Idle Property into Trusted Capital</p>
 
-<button onclick="start()">START VERIFICATION</button>
+<button type="button" onclick="start()">START VERIFICATION</button>
 
 </div>
 
@@ -169,7 +170,7 @@ margin:20px auto;
 
 <canvas id="qr"></canvas>
 
-<button onclick="generate()">GENERATE VERIFICATION</button>
+<button type="button" onclick="generate()">GENERATE VERIFICATION</button>
 
 </div>
 
@@ -184,7 +185,7 @@ document.getElementById("form").style.display="block";
 /* SYSTEM QR */
 QRCode.toCanvas(document.getElementById("landingQR"), "FSTL COMET OS SYSTEM");
 
-/* VERIFICATION STRENGTH */
+/* VERIFICATION STRENGTH (ENGINE UNTOUCHED) */
 function score(){
 let s=0;
 
@@ -222,7 +223,7 @@ prop:prop.value,
 id:Math.floor(Math.random()*1000000)
 };
 
-/* NON-BLOCKING */
+/* NON-BLOCKING (FINAL FIX) */
 if(!data.name || !data.prop){
 alert("Proceeding with incomplete data. Verification strength will be lower.");
 }

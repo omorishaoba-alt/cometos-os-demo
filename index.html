@@ -3,65 +3,262 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FSTL COMET OS - Digital Property Verification</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<title>FSTL COMET OS</title>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
 <style>
 html, body {
-  margin:0; padding:0; height:100%; width:100%;
-  font-family: Arial, sans-serif;
-  background: #f9f9f9;
+margin:0;
+padding:0;
+height:100%;
+font-family:Arial, sans-serif;
+background:#f4f4f4;
 }
-#landing, #formPage {
-  min-height: 100vh;
-  width:100%;
-  padding: 40px;
-  box-sizing: border-box;
-  background:#fff;
+
+.page {
+min-height:100vh;
+padding:40px;
+box-sizing:border-box;
+background:#fff;
 }
-h1,h2,h3 { margin-bottom: 20px; }
-label { display:block; margin-top:15px; }
-input, select { width:100%; padding:10px; margin-top:5px; }
-button { margin-top:20px; padding:15px; width:100%; background:#007bff; color:#fff; border:none; cursor:pointer; font-size:16px; }
-#qr { margin-top:20px; }
-#crl { font-weight:bold; }
+
+h1,h2,h3 {
+text-align:center;
+margin-bottom:20px;
+}
+
+label {
+display:block;
+margin-top:15px;
+font-weight:bold;
+}
+
+input, select {
+width:100%;
+padding:12px;
+margin-top:5px;
+font-size:14px;
+}
+
+button {
+width:100%;
+padding:15px;
+margin-top:25px;
+background:#000;
+color:#fff;
+border:none;
+font-size:16px;
+cursor:pointer;
+}
+
+#crl {
+margin-top:20px;
+font-weight:bold;
+}
+
+canvas {
+display:block;
+margin:20px auto;
+}
 </style>
 </head>
+
 <body>
 
-<!-- LANDING PAGE -->
-<div id="landing">
-  <h1>FSTL COMET OS</h1>
-  <h3>Digital Property Verification Platform</h3>
-  <canvas id="landingQR"></canvas>
-  <p>Transforming Property into Trusted Capital</p>
-  <button id="startBtn">Start Verification</button>
+<!-- LANDING -->
+<div id="landing" class="page">
+<h1>FSTL COMET OS</h1>
+<h3>Digital Property Verification Platform</h3>
+
+<canvas id="landingQR"></canvas>
+
+<p style="text-align:center;">
+Transforming Idle Property into Trusted Capital
+</p>
+
+<button onclick="start()">START VERIFICATION</button>
 </div>
 
-<!-- FORM PAGE -->
-<div id="formPage" style="display:none;">
-  <h2>Owner Verification Form</h2>
-  <label>Full Name of Owner:</label>
-  <input type="text" id="ownerName" required>
+<!-- FORM -->
+<div id="form" class="page" style="display:none;">
 
-  <label>NIN / National ID:</label>
-  <input type="text" id="nin">
+<h2>Owner Verification</h2>
 
-  <label>BVN / Bank ID:</label>
-  <input type="text" id="bvn">
+<label>Full Name</label>
+<input id="name">
 
-  <label>Phone:</label>
-  <input type="tel" id="phone">
+<label>NIN / National ID</label>
+<input id="nin">
 
-  <label>Email:</label>
-  <input type="email" id="email">
+<label>BVN / Bank ID</label>
+<input id="bvn">
 
-  <label>WhatsApp:</label>
-  <input type="tel" id="whatsapp">
+<label>Phone</label>
+<input id="phone">
 
-  <label>Country:</label>
-  <select id="country">
-    <option value="">Select Country</option>
-    <!-- 50+ countries + 5
+<label>Email</label>
+<input id="email">
+
+<label>WhatsApp</label>
+<input id="whatsapp">
+
+<label>Country</label>
+<select id="country">
+<option value="">Select</option>
+
+<option>Nigeria</option>
+<option>Ghana</option>
+<option>Kenya</option>
+<option>South Africa</option>
+<option>Egypt</option>
+
+<option>USA</option>
+<option>UK</option>
+<option>Canada</option>
+<option>Germany</option>
+<option>France</option>
+
+<option>Brazil</option>
+<option>Mexico</option>
+<option>Argentina</option>
+
+<option>China</option>
+<option>India</option>
+<option>Japan</option>
+<option>Singapore</option>
+
+<option>Australia</option>
+<option>New Zealand</option>
+
+<option>UAE</option>
+<option>Saudi Arabia</option>
+
+</select>
+
+<label>Residential Address</label>
+<input id="res">
+
+<label>Property Address</label>
+<input id="prop">
+
+<label>Ownership</label>
+<select id="own">
+<option>Family</option>
+<option>Inherited</option>
+<option>Purchased</option>
+</select>
+
+<label>Reason</label>
+<select id="reason">
+<option>Sell</option>
+<option>Rent</option>
+<option>Mortgage</option>
+</select>
+
+<div id="crl">Verification Strength: 0%</div>
+
+<canvas id="qr"></canvas>
+
+<button onclick="generate()">GENERATE VERIFICATION</button>
+
+</div>
+
+<script>
+
+function start(){
+document.getElementById("landing").style.display="none";
+document.getElementById("form").style.display="block";
+}
+
+QRCode.toCanvas(document.getElementById("landingQR"), "FSTL COMET OS SYSTEM");
+
+function score(){
+let s=0;
+
+if(name.value) s+=20;
+if(nin.value) s+=10;
+if(bvn.value) s+=10;
+if(phone.value) s+=10;
+if(email.value) s+=10;
+if(whatsapp.value) s+=10;
+if(prop.value) s+=20;
+if(reason.value) s+=10;
+
+crl.innerHTML="Verification Strength: "+s+"%";
+crl.style.color = s>70 ? "green":"orange";
+}
+
+document.querySelectorAll("input,select").forEach(e=>{
+e.addEventListener("input",score);
+});
+
+function generate(){
+
+let data={
+name:name.value,
+prop:prop.value,
+id:Math.floor(Math.random()*1000000)
+};
+
+if(!data.name || !data.prop){
+alert("Complete required fields");
+return;
+}
+
+QRCode.toCanvas(document.getElementById("qr"), JSON.stringify(data), function(){
+
+var doc=new jsPDF();
+
+// COVER
+doc.setFontSize(22);
+doc.text("FSTL COMET OS",105,40,null,null,"center");
+
+doc.setFontSize(12);
+doc.text("Digital Property Verification System",105,55,null,null,"center");
+
+var q1=document.getElementById("landingQR").toDataURL();
+doc.addImage(q1,"PNG",55,90,100,100);
+
+doc.text("Transforming Property into Trusted Capital",105,220,null,null,"center");
+
+// REPORT
+doc.addPage();
+doc.text("Verification Report",20,30);
+doc.text("Owner: "+name.value,20,60);
+doc.text("Property: "+prop.value,20,80);
+doc.text("Verification ID: "+data.id,20,100);
+doc.text(crl.innerText,20,120);
+
+var q2=document.getElementById("qr").toDataURL();
+doc.addImage(q2,"PNG",130,70,60,60);
+
+// EXPLANATION
+doc.addPage();
+doc.text("What This Means",105,60,null,null,"center");
+doc.text("This verification improves your ability to transact with confidence.",105,100,null,null,"center");
+doc.text("Sell faster • Rent securely • Access capital",105,130,null,null,"center");
+
+// ACRONYMS
+doc.addPage();
+doc.text("Acronyms",20,40);
+doc.text("NIN: National Identity Number",20,70);
+doc.text("BVN: Bank Verification Number",20,90);
+
+// LEGAL
+doc.addPage();
+doc.text("Legal Notice",20,40);
+doc.text("False inputs are subject to criminal laws of the jurisdiction of verification.",20,80);
+
+doc.save("FSTL_COMET_OS.pdf");
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
